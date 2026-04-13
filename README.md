@@ -59,4 +59,4 @@ Every control resides in a window, and its placement is relative to its parent w
 * Doesn't probably handle scaling when dragging the main window between monitors (currently untested)
 * Apart from the included skeleton application everything is completely untested!
 
-![screenshot](https://github.com/immortalx74/SDLUI/blob/master/screenshot.jpg)
+![demo_screenshot](demo_screenshot.png)
