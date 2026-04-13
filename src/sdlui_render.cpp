@@ -253,8 +253,6 @@ void SDLUI_Render_RadioButton(SDLUI_Control_RadioButton *rb)
 	}
 }
 
-void SDLUI_RenderChild(SDLUI_CONTROL_TYPE type, SDLUI_Control *ctrl);
-
 void SDLUI_Render_Tabcontainer(SDLUI_Control_TabContainer *tbc)
 {
 	if(tbc->visible)
