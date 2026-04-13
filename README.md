@@ -1,10 +1,15 @@
 # SDLUI
 
-
-
 SDLUI is a bare bones GUI library made with SDL, for SDL, and written in a style that resembles SDL.
 It depends on standard SDL extensions (SDL_image, SDL_ttf).
 Its purpose is to have a convenient way to build small apps, utilities and tools right within SDL, without much hassle to set-up.
+
+This fork has a couple of goals.
+
+- [x] Port the project to SDL3.
+- [ ] Convert the C++ code into C code ([Like this fork wanted to](https://github.com/leechristina/SDLUI)).
+- [ ] Implement some kind of layout management, ala CLAY.
+- [ ] Add stable bindings for C3.
 
 ## How to use
 
