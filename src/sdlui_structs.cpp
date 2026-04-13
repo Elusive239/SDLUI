@@ -124,10 +124,10 @@ struct SDLUI_Theme
 struct SDLUI_Control
 {
 	SDLUI_CONTROL_TYPE type;
-	i32 x;
-	i32 y;
-	i32 w;
-	i32 h;
+	float x;
+	float y;
+	float w;
+	float h;
 	bool visible = true;
 	bool enabled = true;
 	bool owned_by_window = true;
@@ -207,8 +207,8 @@ SDLUI_ArrayOfControls SDLUI_Window_Collection;
 
 struct SDLUI_Control_Window : SDLUI_Control
 {
-	i32 drag_x;
-	i32 drag_y;
+	float drag_x;
+	float drag_y;
 	bool is_dragged = false;
 	bool is_resized = false;
 	bool is_hovered = false;
@@ -232,13 +232,14 @@ struct SDLUI_Control_Button : SDLUI_Control
 	SDL_Texture *tex_text;
 };
 
+// Generisize for different int types?
 struct SDLUI_Control_SliderInt : SDLUI_Control
 {
 	i32 min;
 	i32 max;
 	i32 value;
 	SDLUI_ORIENTATION orientation;
-	i32 thumb_size;
+	float thumb_size;
 	bool is_changing;
 };
 
@@ -288,8 +289,8 @@ struct __SDLUI_Core
     
 	u8 mouse_current_frame[5] = {0};
 	u8 mouse_last_frame[5] = {0};
-	i32 mouse_wheel_y;
-	i32 mouse_wheel_x;
+	float mouse_wheel_y;
+	float mouse_wheel_x;
 	SDLUI_Theme theme;
 	SDLUI_Control_Window *active_window;
 
@@ -321,7 +322,7 @@ struct SDLUI_Control_Tab : SDLUI_Control
 
 struct SDLUI_Control_TabContainer : SDLUI_Control
 {
-	i32 bar_height;
+	float bar_height;
 	SDLUI_ArrayOfControls tabs;
 	SDLUI_Control_Tab *active_tab;
 	SDLUI_ORIENTATION orientation;
@@ -338,9 +339,9 @@ struct SDLUI_Control_TabContainer : SDLUI_Control
 		tab->index = tabs.size;
 
 		SDL_Color c = {255, 255, 255, 255};
-		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,tab->text.data, c);
+		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,tab->text.data, 0, c);
 		tab->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-		SDL_FreeSurface(s);
+		SDL_DestroySurface(s);
 
 		this->tabs.push(tab);
 		this->active_tab = tab;
@@ -399,17 +400,17 @@ struct SDLUI_Control_Text : SDLUI_Control
 
 struct SDLUI_Control_ScrollArea : SDLUI_Control
 {
-	i32 content_width;
-	i32 content_height;
-	i32 client_width;
-	i32 client_height;
-	i32 scrollbar_thickness;
-	i32 track_size_h;
-	i32 track_size_v;
-	i32 thumb_size_h;
-	i32 thumb_size_v;
-	i32 scroll_x;
-	i32 scroll_y;
+	float content_width;
+	float content_height;
+	float client_width;
+	float client_height;
+	float scrollbar_thickness;
+	float track_size_h;
+	float track_size_v;
+	float thumb_size_h;
+	float thumb_size_v;
+	float scroll_x;
+	float scroll_y;
 	bool is_changing_v;
 	bool is_changing_h;
 	SDL_Texture *tex_rect;

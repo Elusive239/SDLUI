@@ -42,7 +42,7 @@ SDLUI_Control_CheckBox *chk2 = SDLUI_CreateCheckBox(wnd2, 10, 90, "Another check
 // we can pass NULL as the last parameter. Here we first create a texture and pass it on to the ScrollArea.
 SDL_Surface *surf = IMG_Load("test_image.png");
 SDL_Texture *tex = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, surf);
-SDL_FreeSurface(surf);
+SDL_DestroySurface(surf);
 SDLUI_Control_ScrollArea *sa2 = SDLUI_CreateScrollArea(wnd2, 10, 120, 430, 220, tex);
 
 // RadioButtons are handled in groups. A special kind of array(SDLUI_ArrayOfControls) is used

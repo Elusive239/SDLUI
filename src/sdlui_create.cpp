@@ -19,9 +19,9 @@ SDLUI_Control_Window *SDLUI_CreateWindow(i32 x, i32 y, i32 w, i32 h, char const 
 	wnd->has_close_button = true;
 	wnd->can_be_resized = true;
 
-	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,wnd->title.data, SDLUI_Core.theme.col_white);
+	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,wnd->title.data, 0, SDLUI_Core.theme.col_white);
 	wnd->tex_title = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-	SDL_FreeSurface(s);
+	SDL_DestroySurface(s);
 
 	wnd->tex_rect = SDL_CreateTexture(SDLUI_Core.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
 
@@ -49,9 +49,9 @@ SDLUI_Control_Button *SDLUI_CreateButton(SDLUI_Control_Window *wnd, i32 x, i32 y
 	btn->state = SDLUI_BUTTON_STATE_NORMAL;
 	btn->parent = wnd;
 
-	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, SDLUI_Core.theme.col_white);
+	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, 0, SDLUI_Core.theme.col_white);
 	btn->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-	SDL_FreeSurface(s);
+	SDL_DestroySurface(s);
 
 	wnd->children.push(btn);
 	return btn;
@@ -110,9 +110,9 @@ SDLUI_Control_CheckBox *SDLUI_CreateCheckBox(SDLUI_Control_Window *wnd, i32 x, i
 	if(strlen(text) > 0)
 	{
 		chk->text.create(text);
-		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, SDLUI_Core.theme.col_white);
+		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, 0, SDLUI_Core.theme.col_white);
 		chk->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-		SDL_FreeSurface(s);
+		SDL_DestroySurface(s);
 	}
 	else
 	{
@@ -139,9 +139,9 @@ SDLUI_Control_Text *SDLUI_CreateText(SDLUI_Control_Window *wnd, i32 x, i32 y, ch
 	txt->owned_by_window = true;
 	txt->parent = wnd;
 
-	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,txt->text.data, SDLUI_Core.theme.col_white);
+	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,txt->text.data, 0, SDLUI_Core.theme.col_white);
 	txt->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-	SDL_FreeSurface(s);
+	SDL_DestroySurface(s);
 
 	wnd->children.push(txt);
 	return txt;
@@ -166,9 +166,9 @@ SDLUI_Control_ToggleButton *SDLUI_CreateToggleButton(SDLUI_Control_Window *wnd, 
 	if(strlen(text) > 0)
 	{
 		tb->text.create(text);
-		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, SDLUI_Core.theme.col_white);
+		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, 0, SDLUI_Core.theme.col_white);
 		tb->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-		SDL_FreeSurface(s);
+		SDL_DestroySurface(s);
 	}
 	else
 	{
@@ -208,9 +208,9 @@ SDLUI_Control_RadioButton *SDLUI_CreateRadioButton(SDLUI_Control_Window *wnd, SD
 	if(strlen(text) > 0)
 	{
 		rb->text.create(text);
-		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text, SDLUI_Core.theme.col_white);
+		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle, text,0, SDLUI_Core.theme.col_white);
 		rb->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-		SDL_FreeSurface(s);
+		SDL_DestroySurface(s);
 	}
 	else
 	{
@@ -259,14 +259,14 @@ SDLUI_Control_ScrollArea *SDLUI_CreateScrollArea(SDLUI_Control_Window *wnd, i32 
 	sa->enabled = true;
 	sa->owned_by_window = true;
 	sa->scrollbar_thickness = 12;
-	sa->track_size_h = sa->w - sa->scrollbar_thickness;
-	sa->track_size_v = sa->h - sa->scrollbar_thickness;
+	sa->track_size_h = sa->w ;//- sa->scrollbar_thickness;
+	sa->track_size_v = sa->h ;//- sa->scrollbar_thickness;
 	sa->scroll_x = 0;
 	sa->scroll_y = 0;
 	sa->is_changing_v = false;
 	sa->is_changing_h = false;
 	sa->tex_rect = tex;
-	if(SDL_QueryTexture(sa->tex_rect, NULL, NULL, &sa->content_width, &sa->content_height) == 0)
+	if(SDL_GetTextureSize(sa->tex_rect, &sa->content_width, &sa->content_height) == 0)
 	{
 		if(sa->content_width > sa->w)
 		{
@@ -300,7 +300,7 @@ SDLUI_Control_List *SDLUI_CreateList(SDLUI_Control_Window *wnd, SDLUI_Control_Sc
 	lst->selected_index = 0;
 	lst->max_string_width = 0;
 
-	i32 h = num_items * SDLUI_Font.height;
+	float h = num_items * SDLUI_Font.height;
 	if(h < sa->h)
 	{
 		h = sa->h;
@@ -311,7 +311,7 @@ SDLUI_Control_List *SDLUI_CreateList(SDLUI_Control_Window *wnd, SDLUI_Control_Sc
 
 	sa->client_height = sa->h - sa->scrollbar_thickness;
 
-	if(SDL_QueryTexture(sa->tex_rect, NULL, NULL, &sa->content_width, &sa->content_height) == 0)
+	if(SDL_GetTextureSize(sa->tex_rect,  &sa->content_width, &sa->content_height) == 0)
 	{
 		if(sa->content_width > sa->w)
 		{

@@ -30,10 +30,8 @@
 int main(int argc, char *argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_Window *window = SDL_CreateWindow("SDLUI app", 50, 50,
-	                                      1200, 800, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
-	                                      SDL_RENDERER_PRESENTVSYNC | SDL_WINDOW_ALLOW_HIGHDPI);
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_Window *window = SDL_CreateWindow("SDLUI app", 1200, 800, 0);
+	SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
 
 	// Initializes SDLUI. Called after a window and renderer have been created.
 	SDLUI_Init(renderer, window);
@@ -47,23 +45,20 @@ int main(int argc, char *argv[])
 
 	while (!quit)
 	{
-		if (SDL_WaitEvent(&e) != 0)
+		if (SDL_PollEvent(&e) != 0)
 		{
-			if (e.type == SDL_QUIT)
+			if (e.type == SDL_EVENT_QUIT)
 			{
 				quit = true;
 			}
-			if(e.type == SDL_WINDOWEVENT)
+			if(e.type == SDL_EVENT_WINDOW_MINIMIZED || e.type == SDL_EVENT_WINDOW_FOCUS_LOST)
 			{
-				if(e.window.event == SDL_WINDOWEVENT_MINIMIZED || e.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+				while(SDL_PollEvent(&e))
 				{
-					while(SDL_WaitEvent(&e))
+					if(e.type == SDL_EVENT_WINDOW_RESTORED || e.type == SDL_EVENT_WINDOW_FOCUS_GAINED)
 					{
-						if(e.window.event == SDL_WINDOWEVENT_RESTORED || e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
-						{
-							SDLUI_ForceReDraw();
-							break;
-						}
+						SDLUI_ForceReDraw();
+						break;
 					}
 				}
 			}

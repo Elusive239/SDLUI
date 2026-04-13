@@ -11,7 +11,7 @@ float SDLUI_Clamp(float n, float min, float max)
 	return n;
 }
 
-bool SDLUI_PointInRect(SDL_Rect rect, i32 x, i32 y)
+bool SDLUI_PointInRect(SDL_FRect rect, float x, float y)
 {
 	if(x >= rect.x && x <= rect.x + rect.w &&
 	   y >= rect.y && y <= rect.y +rect.h)
@@ -21,21 +21,37 @@ bool SDLUI_PointInRect(SDL_Rect rect, i32 x, i32 y)
 	return false;
 }
 
+TTF_Font* fontFromMem( void* data, size_t len, float ptsize) {
+	SDL_IOStream* rw = SDL_IOFromConstMem(data, len);
+	TTF_Font* font = TTF_OpenFontIO(rw, false, ptsize);                                       
+	SDL_CloseIO(rw);
+	return font;
+}
+
+SDL_Texture* textureFromMem(SDL_Renderer* renderer, void* data, size_t len) {
+	SDL_IOStream* rw = SDL_IOFromConstMem(data, len);
+	SDL_Surface* surf = IMG_LoadPNG_IO(rw);
+	SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
+	SDL_CloseIO(rw);
+	SDL_DestroySurface(surf);
+	return tex;
+}
+
 void SDLUI_Init(SDL_Renderer *r, SDL_Window *w)
 {
 	#ifdef _WIN32
 	SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
 	#endif
 
-	IMG_Init(IMG_INIT_PNG);
 	TTF_Init();
 
-	SDL_RWops *rw;
-	rw = SDL_RWFromMem((void*)sdlui_font_data, sizeof(sdlui_font_data));
-	SDLUI_Font.handle = TTF_OpenFontRW(rw, 1, SDLUI_Font.size);
+	//couldn't get the font to load from memory... yet! wrote it to a file and read it back the "normal" way, for now.
+	SDLUI_Font.handle = TTF_OpenFont("cool_font.ttf", 14);//fontFromMem( (void*)sdlui_font_data, sizeof(sdlui_font_data), 12);
+	// SDL_Log("%s", SDL_GetError());
 
-	SDLUI_Font.height = TTF_FontHeight(SDLUI_Font.handle);
-	TTF_SizeText(SDLUI_Font.handle, "0", &SDLUI_Font.width, &SDLUI_Font.height);
+	TTF_GetStringSize(SDLUI_Font.handle, "0", 0, &SDLUI_Font.width, &SDLUI_Font.height);
+	SDLUI_Font.height = TTF_GetFontHeight(SDLUI_Font.handle);
+	// SDLUI_Font.width = 8;
 
 	SDLUI_Core.renderer = r;
 	SDLUI_Core.window = w;
@@ -43,20 +59,20 @@ void SDLUI_Init(SDL_Renderer *r, SDL_Window *w)
     
     // Managing High DPI texture to window ratio (MacOS)
     i32 renderer_width, renderer_height;
-    SDL_GetRendererOutputSize(SDLUI_Core.renderer, &renderer_width, &renderer_height);
+    SDL_GetCurrentRenderOutputSize(SDLUI_Core.renderer, &renderer_width, &renderer_height);
     SDLUI_Core.texture_window_hdpi_ratio_x=(float)renderer_width/SDLUI_Core.window_width;
     SDLUI_Core.texture_window_hdpi_ratio_y=(float)renderer_height/SDLUI_Core.window_height;
     
 	SDLUI_Window_Collection.create();
 
-	SDLUI_Core.cursor_arrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-	SDLUI_Core.cursor_ibeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+	SDLUI_Core.cursor_arrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
+	SDLUI_Core.cursor_ibeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
 
-	SDLUI_Core.cursor_size_we = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
-	SDLUI_Core.cursor_size_ns = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+	SDLUI_Core.cursor_size_we = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE);
+	SDLUI_Core.cursor_size_ns = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE);
 
-	SDLUI_Core.cursor_size_nwse = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
-	SDLUI_Core.cursor_size_nesw = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+	SDLUI_Core.cursor_size_nwse = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
+	SDLUI_Core.cursor_size_nesw = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NESW_RESIZE);
 
 	SDL_SetCursor(SDLUI_Core.cursor_arrow);
 
@@ -66,39 +82,21 @@ void SDLUI_Init(SDL_Renderer *r, SDL_Window *w)
 	}
 	SDLUI_Font.ascii[95] = '\0';
 
-	SDL_Surface *characters = TTF_RenderText_Blended(SDLUI_Font.handle, SDLUI_Font.ascii, SDLUI_Core.theme.col_white);
+	SDL_Surface *characters = TTF_RenderText_Blended(SDLUI_Font.handle, SDLUI_Font.ascii, 0, SDLUI_Core.theme.col_white);
 	SDLUI_Font.tex_font = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, characters);
-	SDL_FreeSurface(characters);
+	SDL_DestroySurface(characters);
 
-	SDL_Surface *s;
-	// SDL_RWops *rw;
+	SDLUI_Core.tex_tick = textureFromMem(SDLUI_Core.renderer,(void*)sdlui_png_tick, sizeof(sdlui_png_tick));
 
-	rw = SDL_RWFromMem((void*)sdlui_png_tick, sizeof(sdlui_png_tick));
-	s = IMG_LoadPNG_RW(rw);
-	SDLUI_Core.tex_tick = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
+	SDLUI_Core.tex_toggle = textureFromMem(SDLUI_Core.renderer,(void*)sdlui_png_toggle, sizeof(sdlui_png_toggle));
 
-	rw = SDL_RWFromMem((void*)sdlui_png_toggle, sizeof(sdlui_png_toggle));
-	s = IMG_LoadPNG_RW(rw);
-	SDLUI_Core.tex_toggle = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
+	SDLUI_Core.tex_circle_fill_2 = textureFromMem(SDLUI_Core.renderer, (void*)sdlui_png_circlefillsmall, sizeof(sdlui_png_circlefillsmall));
 
-	rw = SDL_RWFromMem((void*)sdlui_png_circlefillsmall, sizeof(sdlui_png_circlefillsmall));
-	s = IMG_LoadPNG_RW(rw);
-	SDLUI_Core.tex_circle_fill_2 = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
+	SDLUI_Core.tex_circle_fill_1 = textureFromMem(SDLUI_Core.renderer,(void*)sdlui_png_circlefillbig, sizeof(sdlui_png_circlefillbig));
 
-	rw = SDL_RWFromMem((void*)sdlui_png_circlefillbig, sizeof(sdlui_png_circlefillbig));
-	s = IMG_LoadPNG_RW(rw);
-	SDLUI_Core.tex_circle_fill_1 = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
+	SDLUI_Core.tex_circle =	textureFromMem(SDLUI_Core.renderer, (void*)sdlui_png_circle, sizeof(sdlui_png_circle));
 
-	rw = SDL_RWFromMem((void*)sdlui_png_circle, sizeof(sdlui_png_circle));
-	s = IMG_LoadPNG_RW(rw);
-	SDLUI_Core.tex_circle = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-
-	rw = SDL_RWFromMem((void*)sdlui_png_close, sizeof(sdlui_png_close));
-	s = IMG_LoadPNG_RW(rw);
-	SDLUI_Core.tex_close = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-
-	SDL_FreeSurface(s);
-	SDL_RWclose(rw);
+	SDLUI_Core.tex_close = textureFromMem(SDLUI_Core.renderer, (void*)sdlui_png_close, sizeof(sdlui_png_close));
 }
 
 void SDLUI_MouseStateReset()
@@ -111,7 +109,7 @@ void SDLUI_MouseStateReset()
 
 void SDLUI_MouseStateSet(i32 event_type, i32 mbutton)
 {
-	SDLUI_Core.mouse_current_frame[mbutton] = (event_type == SDL_MOUSEBUTTONDOWN || event_type == SDL_MOUSEMOTION);
+	SDLUI_Core.mouse_current_frame[mbutton] = (event_type == SDL_EVENT_MOUSE_BUTTON_DOWN || event_type == SDL_EVENT_MOUSE_MOTION);
 }
 
 SDLUI_MOUSEBUTTON SDLUI_MouseButton(i32 mbutton)
@@ -141,12 +139,12 @@ void SDLUI_GradientToTexture(SDL_Texture *t, SDL_Color c, i32 width, i32 height,
 {
 	SDL_SetRenderTarget(SDLUI_Core.renderer, t);
 
-	i32 x = 0, y = 0;
+	float x = 0, y = 0;
 	SDLUI_SetColor(c);
 
 	for (int i = 0; i < height; ++i)
 	{
-		SDL_RenderDrawLine(SDLUI_Core.renderer, x, y + i, width, y + i);
+		SDL_RenderLine(SDLUI_Core.renderer, x, y + i, width, y + i);
 
 		if(i % interv == 0)
 		{
@@ -180,9 +178,9 @@ void SDLUI_SetActiveWindow(SDLUI_Control_Window *wnd)
 	SDLUI_Core.active_window = wnd;
 }
 
-SDLUI_RESIZE_DIRECTION SDLUI_SetWindowResizeCursor(SDLUI_Control_Window *wnd, i32 mousex, i32 mousey)
+SDLUI_RESIZE_DIRECTION SDLUI_SetWindowResizeCursor(SDLUI_Control_Window *wnd, float mousex, float mousey)
 {
-	SDL_Rect left, top, right, bottom, lt, rt, lb, rb;
+	SDL_FRect left, top, right, bottom, lt, rt, lb, rb;
 	left = {wnd->x-8, wnd->y, 8, wnd->h};
 	top = {wnd->x, wnd->y-8, wnd->w, 8};
 	right = {wnd->x+wnd->w, wnd->y, 8, wnd->h};
@@ -340,7 +338,8 @@ void SDLUI_ResizeWindow(SDLUI_Control_Window *aw, SDLUI_RESIZE_DIRECTION res_dir
 
 void SDLUI_WindowHandler()
 {
-	i32 mx, my, index = 0;
+	float mx, my;
+	int index = 0;
 	SDL_GetMouseState(&mx, &my);
     #ifdef __APPLE__
     mx=mx*SDLUI_Core.texture_window_hdpi_ratio_x;
@@ -378,7 +377,7 @@ void SDLUI_WindowHandler()
 	if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED && SDL_GetCursor() == SDLUI_Core.cursor_arrow)
 	{
 		SDLUI_Control_Window *wnd;
-		SDL_Rect r;
+		SDL_FRect r;
 		bool hovers_window = false;
 
 		for (int i = 0; i < SDLUI_Window_Collection.size; ++i)
@@ -408,85 +407,89 @@ void SDLUI_WindowHandler()
 	}
 }
 
-// Got this from StackOverflow.
-void save_texture(SDL_Renderer *ren, SDL_Texture *tex, const char *filename)
-{
-	SDL_Texture *ren_tex;
-	SDL_Surface *surf;
-	int st;
-	int w;
-	int h;
-	int format;
-	void *pixels;
+// // Got this from StackOverflow.
+// void save_texture(SDL_Renderer *ren, SDL_Texture *tex, const char *filename)
+// {
+// 	SDL_Texture *ren_tex;
+// 	SDL_Surface *surf;
+// 	int st;
+// 	int w;
+// 	int h;
+// 	int format;
+// 	void *pixels;
 
-	pixels  = NULL;
-	surf    = NULL;
-	ren_tex = NULL;
-	format  = SDL_PIXELFORMAT_RGBA32;
+// 	pixels  = NULL;
+// 	surf    = NULL;
+// 	ren_tex = NULL;
+// 	format  = SDL_PIXELFORMAT_RGBA32;
 
-    /* Get information about texture we want to save */
-	st = SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-	if (st != 0) {
-		SDL_Log("Failed querying texture: %s\n", SDL_GetError());
-		goto cleanup;
-	}
+//     /* Get information about texture we want to save */
+// 	float wf;
+// 	float hf;
+// 	st = SDL_GetTextureSize(tex, &wf, &hf);
+// 	w = (int) wf;
+// 	h = (int) hf;
+// 	if (st != 0) {
+// 		SDL_Log("Failed querying texture: %s\n", SDL_GetError());
+// 		goto cleanup;
+// 	}
 
-	ren_tex = SDL_CreateTexture(ren, format, SDL_TEXTUREACCESS_TARGET, w, h);
-	if (!ren_tex) {
-		SDL_Log("Failed creating render texture: %s\n", SDL_GetError());
-		goto cleanup;
-	}
+// 	ren_tex = SDL_CreateTexture(ren, format, SDL_TEXTUREACCESS_TARGET, w, h);
+// 	if (!ren_tex) {
+// 		SDL_Log("Failed creating render texture: %s\n", SDL_GetError());
+// 		goto cleanup;
+// 	}
 
-    /*
-     * Initialize our canvas, then copy texture to a target whose pixel data we
-     * can access
-     */
-     st = SDL_SetRenderTarget(ren, ren_tex);
-     if (st != 0) {
-     	SDL_Log("Failed setting render target: %s\n", SDL_GetError());
-     	goto cleanup;
-     }
+//     /*
+//      * Initialize our canvas, then copy texture to a target whose pixel data we
+//      * can access
+//      */
+//      st = SDL_SetRenderTarget(ren, ren_tex);
+//      if (st != 0) {
+//      	SDL_Log("Failed setting render target: %s\n", SDL_GetError());
+//      	goto cleanup;
+//      }
 
-     SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00);
-     SDL_RenderClear(ren);
+//      SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00);
+//      SDL_RenderClear(ren);
 
-     st = SDL_RenderCopy(ren, tex, NULL, NULL);
-     if (st != 0) {
-     	SDL_Log("Failed copying texture data: %s\n", SDL_GetError());
-     	goto cleanup;
-     }
+//      st = SDL_RenderTexture(ren, tex, NULL, NULL);
+//      if (st != 0) {
+//      	SDL_Log("Failed copying texture data: %s\n", SDL_GetError());
+//      	goto cleanup;
+//      }
 
-    /* Create buffer to hold texture data and load it */
-     pixels = malloc(w * h * SDL_BYTESPERPIXEL(format));
-     if (!pixels) {
-     	SDL_Log("Failed allocating memory\n");
-     	goto cleanup;
-     }
+//     /* Create buffer to hold texture data and load it */
+//      pixels = malloc(w * h * SDL_BYTESPERPIXEL(format));
+//      if (!pixels) {
+//      	SDL_Log("Failed allocating memory\n");
+//      	goto cleanup;
+//      }
 
-     st = SDL_RenderReadPixels(ren, NULL, format, pixels, w * SDL_BYTESPERPIXEL(format));
-     if (st != 0) {
-     	SDL_Log("Failed reading pixel data: %s\n", SDL_GetError());
-     	goto cleanup;
-     }
+//      st = SDL_RenderReadPixels(ren, NULL, format, pixels, w * SDL_BYTESPERPIXEL(format));
+//      if (st != 0) {
+//      	SDL_Log("Failed reading pixel data: %s\n", SDL_GetError());
+//      	goto cleanup;
+//      }
 
-    /* Copy pixel data over to surface */
-     surf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
-     if (!surf) {
-     	SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
-     	goto cleanup;
-     }
+//     /* Copy pixel data over to surface */
+//      surf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
+//      if (!surf) {
+//      	SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
+//      	goto cleanup;
+//      }
 
-    /* Save result to an image */
-     st = SDL_SaveBMP(surf, filename);
-     if (st != 0) {
-     	SDL_Log("Failed saving image: %s\n", SDL_GetError());
-     	goto cleanup;
-     }
+//     /* Save result to an image */
+//      st = SDL_SaveBMP(surf, filename);
+//      if (st != 0) {
+//      	SDL_Log("Failed saving image: %s\n", SDL_GetError());
+//      	goto cleanup;
+//      }
 
-     SDL_Log("Saved texture as BMP to \"%s\"\n", filename);
+//      SDL_Log("Saved texture as BMP to \"%s\"\n", filename);
 
-     cleanup:
-     SDL_FreeSurface(surf);
-     free(pixels);
-     SDL_DestroyTexture(ren_tex);
- }
+//      cleanup:
+//      SDL_DestroySurface(surf);
+//      free(pixels);
+//      SDL_DestroyTexture(ren_tex);
+//  }

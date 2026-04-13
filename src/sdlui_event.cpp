@@ -1,11 +1,11 @@
 void SDLUI_EventHandler(SDL_Event const &ev)
 {
-	if(ev.type == SDL_MOUSEBUTTONDOWN || ev.type == SDL_MOUSEBUTTONUP)
+	if(ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN || ev.type == SDL_EVENT_MOUSE_BUTTON_UP)
 	{
 		SDLUI_MouseStateSet(ev.type, ev.button.button);
 	}
 
-	if(ev.type == SDL_MOUSEWHEEL)
+	if(ev.type == SDL_EVENT_MOUSE_WHEEL)
 	{
 		SDLUI_Core.mouse_wheel_y = ev.wheel.y;
 		SDLUI_Core.mouse_wheel_x = ev.wheel.x;
@@ -20,12 +20,9 @@ void SDLUI_EventHandler(SDL_Event const &ev)
 		SDLUI_Core.mouse_wheel_x = 0;
 	}
 
-	if(ev.type == SDL_WINDOWEVENT)
+	if(ev.type == SDL_EVENT_WINDOW_RESIZED)
 	{
-		if(ev.window.event == SDL_WINDOWEVENT_RESIZED)
-		{
-			SDLUI_ForceReDraw();
-		}
+		SDLUI_ForceReDraw();
 	}
 
 	if(ev.type > 0)
