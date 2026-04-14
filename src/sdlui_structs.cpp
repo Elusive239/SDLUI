@@ -5,101 +5,122 @@ struct SDLUI_String
 	bool modified = false;
 	char *data;
 
-	void create(char const *str)
-	{
-		length = strlen(str);
-		capacity = ((length / SDLUI_STRING_CAPACITY) + 1) * SDLUI_STRING_CAPACITY;
-		data = (char*)malloc(capacity);
-		memcpy(data, str, length);
-		memset(data + length, 0, 1);
-
-		modified = false;
+	inline void create(char const *str) {
+		SDLUI_String_create(this, str);
 	}
 
-	void destroy()
-	{
-		free(data);
-		data = NULL;
+	inline void destroy() {
+		SDLUI_String_destroy(this);
 	}
 
-	void modify(const char *str)
-	{
-		i32 new_length = strlen(str);
-		if(new_length >= capacity)
-		{
-			capacity = ((new_length / SDLUI_STRING_CAPACITY) + 1) * SDLUI_STRING_CAPACITY;
-			data = (char*)realloc(data, capacity);
-			memcpy(data, str, new_length);
-			memset(data + new_length, 0, 1);
-			length = new_length;
-		}
-		else
-		{
-			memcpy(data, str, new_length);
-			memset(data + new_length, 0, capacity - new_length);
-			length = new_length;
-		}
-
-		modified = true;
+	inline void modify(const char *str) {
+		SDLUI_String_modify(this, str);
 	}
 
-	bool insert_char(char c, i32 pos)
-	{
-		if(pos < 0 || pos > length)
-		{
-			return false;
-		}
-
-		i32 new_length = length + 1;
-		if(new_length >= capacity)
-		{
-			capacity = ((new_length / SDLUI_STRING_CAPACITY) + 1) * SDLUI_STRING_CAPACITY;
-			data = (char*)realloc(data, capacity);
-		}
-
-		if(pos == 0)
-		{
-			memmove(data + 1, data, length);
-			memset(data, c, 1);
-		}
-		else if(pos == length)
-		{
-			memset(data + length, c, 1);
-		}
-		else
-		{
-			memmove(data + pos + 1, data + pos, length - pos);
-			memset(data + pos, c, 1);
-		}
-
-		length = new_length;
-		memset(data + length, 0, 1);
-		modified = true;
-		return true;
+	inline bool insert_char(char c, i32 pos) {
+		return SDLUI_String_insert_char(this,c, pos);
 	}
 
-	bool delete_char(i32 pos)
-	{
-		if(pos < 0 || pos > length - 1)
-		{
-			return false;
-		}
-
-		if(pos == length - 1)
-		{
-			memset(data + length - 1, 0, 1);
-		}
-		else
-		{
-			memmove(data + pos, data + pos + 1, length - pos - 1);
-			memset(data + length - 1, 0, 1);
-		}
-
-		length--;
-		modified = true;
-		return true;
+	inline bool delete_char(i32 pos) {
+		return SDLUI_String_delete_char(this, pos);
 	}
+
 };
+
+void SDLUI_String_create(SDLUI_String* self, char const *str)
+{
+	self->length = strlen(str);
+	self->capacity = ((self->length / SDLUI_STRING_CAPACITY) + 1) * SDLUI_STRING_CAPACITY;
+	self->data = (char*)malloc(self->capacity);
+	memcpy(self->data, str, self->length);
+	memset(self->data + self->length, 0, 1);
+
+	self->modified = false;
+}
+
+void SDLUI_String_destroy(SDLUI_String* self)
+{
+	free(self->data);
+	self->data = NULL;
+}
+
+void SDLUI_String_modify(SDLUI_String* self, const char *str)
+{
+	i32 new_length = strlen(str);
+	if(new_length >= self->capacity)
+	{
+		self->capacity = ((new_length / SDLUI_STRING_CAPACITY) + 1) * SDLUI_STRING_CAPACITY;
+		self->data = (char*)realloc(self->data, self->capacity);
+		memcpy(self->data, str, new_length);
+		memset(self->data + new_length, 0, 1);
+		self->length = new_length;
+	}
+	else
+	{
+		memcpy(self->data, str, new_length);
+		memset(self->data + new_length, 0, self->capacity - new_length);
+		self->length = new_length;
+	}
+
+	self->modified = true;
+}
+
+bool SDLUI_String_insert_char(SDLUI_String* self, char c, i32 pos)
+{
+	if(pos < 0 || pos > self->length)
+	{
+		return false;
+	}
+
+	i32 new_length = self->length + 1;
+	if(new_length >= self->capacity)
+	{
+		self->capacity = ((new_length / SDLUI_STRING_CAPACITY) + 1) * SDLUI_STRING_CAPACITY;
+		self->data = (char*)realloc(self->data, self->capacity);
+	}
+
+	if(pos == 0)
+	{
+		memmove(self->data + 1, self->data, self->length);
+		memset(self->data, c, 1);
+	}
+	else if(pos == self->length)
+	{
+		memset(self->data + self->length, c, 1);
+	}
+	else
+	{
+		memmove(self->data + pos + 1, self->data + pos, self->length - pos);
+		memset(self->data + pos, c, 1);
+	}
+
+	self->length = new_length;
+	memset(self->data + self->length, 0, 1);
+	self->modified = true;
+	return true;
+}
+
+bool SDLUI_String_delete_char(SDLUI_String* self, i32 pos)
+{
+	if(pos < 0 || pos > self->length - 1)
+	{
+		return false;
+	}
+
+	if(pos == self->length - 1)
+	{
+		memset(self->data + self->length - 1, 0, 1);
+	}
+	else
+	{
+		memmove(self->data + pos, self->data + pos + 1, self->length - pos - 1);
+		memset(self->data + self->length - 1, 0, 1);
+	}
+
+	self->length--;
+	self->modified = true;
+	return true;
+}
 
 struct SDLUI_Theme
 {
@@ -145,63 +166,82 @@ struct __SDLUI_Font
 	SDL_Texture *tex_font;
 }SDLUI_Font;
 
-struct SDLUI_ArrayOfControls
-{
+struct SDLUI_ArrayOfControls {
 	i32 capacity;
 	i32 size;
 	SDLUI_Control **data;
 
-	void create()
-	{
-		capacity = SDLUI_COLLECTION_CHUNK;
-		data = (SDLUI_Control**)malloc(capacity * sizeof(SDLUI_Control*));
-		size = 0;
+	inline void create() {
+		SDLUI_ArrayOfControls_create(this);
 	}
 
-	void ensure_capacity()
-	{
-		if(size >= capacity)
-		{
-			capacity += SDLUI_COLLECTION_CHUNK;
-			data = (SDLUI_Control**)realloc(data, capacity * sizeof(SDLUI_Control*));
-		}
+	inline void ensure_capacity(){
+		SDLUI_ArrayOfControls_ensure_capacity(this);
 	}
 
-	void push(SDLUI_Control *elem)
-	{
-		ensure_capacity();
-		data[size] = elem;
-		size++;
+	inline void push(SDLUI_Control *elem) {
+		SDLUI_ArrayOfControls_push(this, elem);
 	}
 
-	void pop(SDLUI_Control *elem)
-	{
-		for (int i = 0; i < size; ++i)
-		{
-			if((i < size - 1) && elem == data[i])
-			{
-				i32 num_elements = size - i - 1;
-				memmove(data + i, data + i + 1, num_elements * sizeof(data));
-				size--;
-				return;
-			}
-		}
+	inline void pop(SDLUI_Control *elem) {
+		SDLUI_ArrayOfControls_pop(this, elem);
 	}
 
-	void to_back(SDLUI_Control *elem)
-	{
-		for (int i = 0; i < size; ++i)
-		{
-			if((i < size - 1) && elem == data[i])
-			{
-				i32 num_elements = size - i - 1;
-				memmove(data + i, data + i + 1, num_elements * sizeof(data));
-				data[size - 1] = elem;
-				return;
-			}
-		}
+	inline void to_back(SDLUI_Control *elem) {
+		SDLUI_ArrayOfControls_to_back(this, elem);	
 	}
 };
+
+void SDLUI_ArrayOfControls_create(SDLUI_ArrayOfControls* self)
+{
+	self->capacity = SDLUI_COLLECTION_CHUNK;
+	self->data = (SDLUI_Control**)malloc(self->capacity * sizeof(SDLUI_Control*));
+	self->size = 0;
+}
+
+void SDLUI_ArrayOfControls_ensure_capacity(SDLUI_ArrayOfControls* self)
+{
+	if(self->size >= self->capacity)
+	{
+		self->capacity += SDLUI_COLLECTION_CHUNK;
+		self->data = (SDLUI_Control**)realloc(self->data, self->capacity * sizeof(SDLUI_Control*));
+	}
+}
+
+void SDLUI_ArrayOfControls_push(SDLUI_ArrayOfControls* self, SDLUI_Control *elem)
+{
+	self->ensure_capacity();
+	(self->data)[self->size] = elem;
+	self->size++;
+}
+
+void SDLUI_ArrayOfControls_pop(SDLUI_ArrayOfControls* self, SDLUI_Control *elem)
+{
+	for (int i = 0; i < self->size; ++i)
+	{
+		if((i < self->size - 1) && elem == (self->data)[i])
+		{
+			i32 num_elements = self->size - i - 1;
+			memmove(self->data + i, self->data + i + 1, num_elements * sizeof(self->data));
+			self->size--;
+			return;
+		}
+	}
+}
+
+void SDLUI_ArrayOfControls_to_back(SDLUI_ArrayOfControls* self, SDLUI_Control *elem)
+{
+	for (int i = 0; i < self->size; ++i)
+	{
+		if((i < self->size - 1) && elem == (self->data)[i])
+		{
+			i32 num_elements = self->size - i - 1;
+			memmove(self->data + i, self->data + i + 1, num_elements * sizeof(self->data));
+			(self->data)[self->size - 1] = elem;
+			return;
+		}
+	}
+}
 
 SDLUI_ArrayOfControls SDLUI_Window_Collection;
 
@@ -326,65 +366,70 @@ struct SDLUI_Control_TabContainer : SDLUI_Control
 	SDLUI_ArrayOfControls tabs;
 	SDLUI_Control_Tab *active_tab;
 	SDLUI_ORIENTATION orientation;
-
-	void add_tab(char const *text)
-	{
-		SDLUI_Control_Tab *tab = (SDLUI_Control_Tab*)malloc(sizeof(SDLUI_Control_Tab));
-
-		tab->type = SDLUI_CONTROL_TYPE_TAB;
-		tab->text.create(text);
-		tab->w = (tab->text.length) * SDLUI_Font.width;
-		tab->h = SDLUI_Font.height;
-		tab->children.create();
-		tab->index = tabs.size;
-
-		SDL_Color c = {255, 255, 255, 255};
-		SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,tab->text.data, 0, c);
-		tab->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
-		SDL_DestroySurface(s);
-
-		this->tabs.push(tab);
-		this->active_tab = tab;
-
+	inline void add_tab(char const *text) {
+		SDLUI_TabContainer_add_tab(this, text);
 	}
 
-	void set_active_tab(i32 index)
-	{
-		if(index < 0 || index > this->tabs.size - 1)
-		{
-			return;
-		}
-
-		this->active_tab = (SDLUI_Control_Tab*)this->tabs.data[index];
+	inline void set_active_tab(i32 index) {
+		SDLUI_TabContainer_set_active_tab(this, index);
 	}
 
-	void add_child(i32 tab_index, SDLUI_Control *ctrl)
+	inline void add_child(i32 tab_index, SDLUI_Control *ctrl) {
+		SDLUI_TabContainer_add_child(this, tab_index, ctrl);
+	}
+
+};
+
+
+void SDLUI_TabContainer_add_tab(SDLUI_Control_TabContainer* self, char const *text)
+{
+	SDLUI_Control_Tab *tab = (SDLUI_Control_Tab*)malloc(sizeof(SDLUI_Control_Tab));
+	tab->type = SDLUI_CONTROL_TYPE_TAB;
+	tab->text.create(text);
+	tab->w = (tab->text.length) * SDLUI_Font.width;
+	tab->h = SDLUI_Font.height;
+	tab->children.create();
+	tab->index = self->tabs.size;
+	SDL_Color c = {255, 255, 255, 255};
+	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,tab->text.data, 0, c);
+	tab->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
+	SDL_DestroySurface(s);
+	self->tabs.push(tab);
+	self->active_tab = tab;
+}
+
+void SDLUI_TabContainer_set_active_tab(SDLUI_Control_TabContainer* self, i32 index)
+{
+	if(index < 0 || index > self->tabs.size - 1)
 	{
-		SDLUI_Control_Window *wnd = (SDLUI_Control_Window*)this->parent;
-		SDLUI_Control_Tab *tab;
-		SDLUI_Control *cur_ctrl;
+		return;
+	}
+	self->active_tab = (SDLUI_Control_Tab*)self->tabs.data[index];
+}
 
-		for (int i = 0; i < wnd->children.size; ++i)
+void SDLUI_TabContainer_add_child(SDLUI_Control_TabContainer* self, i32 tab_index, SDLUI_Control *ctrl)
+{
+	SDLUI_Control_Window *wnd = (SDLUI_Control_Window*)self->parent;
+	SDLUI_Control_Tab *tab;
+	SDLUI_Control *cur_ctrl;
+	for (int i = 0; i < wnd->children.size; ++i)
+	{
+		cur_ctrl = wnd->children.data[i];
+		if(cur_ctrl == ctrl)
 		{
-			cur_ctrl = wnd->children.data[i];
-
-			if(cur_ctrl == ctrl)
+			for (int j = 0; j < self->tabs.size; ++j)
 			{
-				for (int j = 0; j < this->tabs.size; ++j)
+				tab = (SDLUI_Control_Tab*)self->tabs.data[j];
+				if(tab->index == tab_index)
 				{
-					tab = (SDLUI_Control_Tab*)this->tabs.data[j];
-
-					if(tab->index == tab_index)
-					{
-						ctrl->visible = false;
-						tab->children.push(ctrl);
-						ctrl->owned_by_window = false;
-					}
+					ctrl->visible = false;
+					tab->children.push(ctrl);
+					ctrl->owned_by_window = false;
 				}
 			}
 		}
 	}
-};
+}
 
 struct SDLUI_Control_Label : SDLUI_Control
 {

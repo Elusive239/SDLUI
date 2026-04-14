@@ -130,6 +130,22 @@ extern "C" {
 	bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i32 cur_index);
 	bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx);
 
+	// wrapped member functions
+	void SDLUI_TabContainer_add_tab(SDLUI_Control_TabContainer* self, char const *text);
+	void SDLUI_TabContainer_set_active_tab(SDLUI_Control_TabContainer* self, i32 index);
+	void SDLUI_TabContainer_add_child(SDLUI_Control_TabContainer* self, i32 tab_index, SDLUI_Control *ctrl);
+
+	void SDLUI_ArrayOfControls_create(SDLUI_ArrayOfControls* self);
+	void SDLUI_ArrayOfControls_ensure_capacity(SDLUI_ArrayOfControls* self);
+	void SDLUI_ArrayOfControls_push(SDLUI_ArrayOfControls* self, SDLUI_Control *elem);
+	void SDLUI_ArrayOfControls_pop(SDLUI_ArrayOfControls* self, SDLUI_Control *elem);
+	void SDLUI_ArrayOfControls_to_back(SDLUI_ArrayOfControls* self, SDLUI_Control *elem);
+
+	void SDLUI_String_create(SDLUI_String* self, char const *str);
+	void SDLUI_String_destroy(SDLUI_String* self);
+	void SDLUI_String_modify(SDLUI_String* self, const char *str);
+	bool SDLUI_String_insert_char(SDLUI_String* self, char c, i32 pos);
+	bool SDLUI_String_delete_char(SDLUI_String* self, i32 pos);
 }
 
 
