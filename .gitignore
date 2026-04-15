@@ -78,3 +78,6 @@ DerivedData/
 *.exe
 *.out
 *.app
+
+
+dynamic_string.c

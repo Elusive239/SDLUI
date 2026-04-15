@@ -59,7 +59,7 @@ struct SDLUI_Control_Text;
 struct SDLUI_Control_ScrollArea;
 struct SDLUI_Control_List;
 
-#include "sdlui_enums.cpp"
+#include "sdlui_enums.c"
 
 // Function Declarations
 
@@ -148,12 +148,18 @@ extern "C" {
 	bool SDLUI_String_delete_char(SDLUI_String* self, i32 pos);
 }
 
+#ifdef __cplusplus
+#define CPP
+#endif
 
-#include "sdlui_structs.cpp"
-#include "sdlui_embeded.cpp"
-#include "sdlui_helpers.cpp"
-#include "sdlui_render.cpp"
-#include "sdlui_create.cpp"
-#include "sdlui_event.cpp"
-#include "sdlui_usage.cpp"
+#define CTRL(value) ((SDLUI_Control*)(void*)(value))
+
+#include "sdlui_structs.c"
+#include "sdlui_members.c"
+#include "sdlui_embeded.c"
+#include "sdlui_helpers.c"
+#include "sdlui_render.c"
+#include "sdlui_create.c"
+#include "sdlui_event.c"
+#include "sdlui_usage.c"
 

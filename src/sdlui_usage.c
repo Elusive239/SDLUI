@@ -1,11 +1,11 @@
 bool SDLUI_Window(SDLUI_Control_Window *wnd)
 {
-	if(!wnd->visible)
+	if(!wnd->base.visible)
 	{
 		return false;
 	}
 
-	wnd->do_process = true;
+	wnd->base.do_process = true;
 
 	if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_RELEASED || SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_NONE)
 	{
@@ -21,7 +21,7 @@ bool SDLUI_Window(SDLUI_Control_Window *wnd)
 		my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
         #endif
 
-		SDL_FRect r = {wnd->x, wnd->y, wnd->w, wnd->h};
+		SDL_FRect r = {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
 
 		if(SDLUI_PointInRect(r, mx, my))
 		{
@@ -34,40 +34,40 @@ bool SDLUI_Window(SDLUI_Control_Window *wnd)
 
 		if(wnd->has_close_button)
 		{
-			r = {wnd->x + wnd->w - 30, wnd->y, 30, 30};
+			r = {wnd->base.x + wnd->base.w - 30, wnd->base.y, 30, 30};
 
 			if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED && SDLUI_PointInRect(r, mx, my))
 			{
-				wnd->visible = false;
+				wnd->base.visible = false;
 				SDLUI_Core.active_window = NULL;
 				SDL_SetCursor(SDLUI_Core.cursor_arrow);
 			}
 		}
 
-		r = {wnd->x,wnd->y,wnd->w - (wnd->has_close_button * 30), 30};
+		r = {wnd->base.x,wnd->base.y,wnd->base.w - (wnd->has_close_button * 30), 30};
 
 		if(SDLUI_PointInRect(r, mx, my))
 		{
 			if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED && !wnd->is_dragged)
 			{
 				wnd->is_dragged = true;
-				wnd->drag_x = mx - wnd->x;
-				wnd->drag_y = my - wnd->y;
+				wnd->drag_x = mx - wnd->base.x;
+				wnd->drag_y = my - wnd->base.y;
 			}
 		}
 
 		if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_HELD && wnd->is_dragged)
 		{
 			SDL_SetCursor(SDLUI_Core.cursor_arrow);
-			i32 old_x = wnd->x;
-			i32 old_y = wnd->y;
-			wnd->x = mx - wnd->drag_x;
-			wnd->y = my - wnd->drag_y;
+			i32 old_x = wnd->base.x;
+			i32 old_y = wnd->base.y;
+			wnd->base.x = mx - wnd->drag_x;
+			wnd->base.y = my - wnd->drag_y;
 
 			for (int i = 0; i < wnd->children.size; ++i)
 			{
-				wnd->children.data[i]->x += wnd->x - old_x;
-				wnd->children.data[i]->y += wnd->y - old_y;
+				wnd->children.data[i]->x += wnd->base.x - old_x;
+				wnd->children.data[i]->y += wnd->base.y - old_y;
 			}
 		}
 
@@ -79,9 +79,9 @@ bool SDLUI_Window(SDLUI_Control_Window *wnd)
 
 bool SDLUI_Button(SDLUI_Control_Button *btn)
 {
-	btn->do_process = true;
+	btn->base.do_process = true;
 
-	if(btn->visible && btn->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(btn->base.visible && btn->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -90,7 +90,7 @@ bool SDLUI_Button(SDLUI_Control_Button *btn)
 		my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
         #endif
 
-		SDL_FRect r = {btn->x,btn->y,btn->w,btn->h};
+		SDL_FRect r = {btn->base.x,btn->base.y,btn->base.w,btn->base.h};
 		if(SDLUI_PointInRect(r, mx, my))
 		{
 			if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
@@ -120,9 +120,9 @@ bool SDLUI_Button(SDLUI_Control_Button *btn)
 
 bool SDLUI_SliderInt(SDLUI_Control_SliderInt *si)
 {
-	si->do_process = true;
+	si->base.do_process = true;
 
-	if(si->visible && si->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(si->base.visible && si->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -131,18 +131,18 @@ bool SDLUI_SliderInt(SDLUI_Control_SliderInt *si)
 		my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
         #endif
 
-		SDL_FRect r = {si->x,si->y,si->w,si->h};
+		SDL_FRect r = {si->base.x,si->base.y,si->base.w,si->base.h};
 		if(SDLUI_PointInRect(r, mx, my))
 		{
 			if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
 			{
 				// if(si->orientation == SDLUI_ORIENTATION_HORIZONTAL)
 				// {
-				// 	si->value = SDLUI_Map(si->x, si->x + si->w, si->min, si->max, mx);
+				// 	si->value = SDLUI_Map(si->base.x, si->base.x + si->base.w, si->min, si->max, mx);
 				// }
 				// else
 				// {
-				// 	si->value = SDLUI_Map(si->y + si->h, si->y, si->min, si->max, my);
+				// 	si->value = SDLUI_Map(si->base.y + si->base.h, si->base.y, si->min, si->max, my);
 				// }
 
 				si->is_changing = true;
@@ -153,12 +153,12 @@ bool SDLUI_SliderInt(SDLUI_Control_SliderInt *si)
 		{
 			if(si->orientation == SDLUI_ORIENTATION_HORIZONTAL)
 			{
-				si->value = SDLUI_Map(si->x, si->x + si->w, si->min, si->max, mx);
+				si->value = SDLUI_Map(si->base.x, si->base.x + si->base.w, si->min, si->max, mx);
 				si->value = SDLUI_Clamp(si->value, si->min, si->max);
 			}
 			else
 			{
-				si->value = SDLUI_Map(si->y + si->h, si->y, si->min, si->max, my);
+				si->value = SDLUI_Map(si->base.y + si->base.h, si->base.y, si->min, si->max, my);
 				si->value = SDLUI_Clamp(si->value, si->min, si->max);
 			}
 
@@ -181,9 +181,9 @@ bool SDLUI_SliderInt(SDLUI_Control_SliderInt *si)
 
 bool SDLUI_CheckBox(SDLUI_Control_CheckBox *chk)
 {
-	chk->do_process = true;
+	chk->base.do_process = true;
 
-	if(chk->visible && chk->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(chk->base.visible && chk->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -195,7 +195,7 @@ bool SDLUI_CheckBox(SDLUI_Control_CheckBox *chk)
 		float tex_w, tex_h;
 		SDL_GetTextureSize(chk->tex_text,&tex_w , &tex_h);
 
-		SDL_FRect r = {chk->x, chk->y, chk->w, chk->h};
+		SDL_FRect r = {chk->base.x, chk->base.y, chk->base.w, chk->base.h};
 		if(chk->tex_text != NULL)
 		{
 			r.w += SDLUI_MARGIN + tex_w;
@@ -215,9 +215,9 @@ bool SDLUI_CheckBox(SDLUI_Control_CheckBox *chk)
 
 bool SDLUI_ToggleButton(SDLUI_Control_ToggleButton *tb)
 {
-	tb->do_process = true;
+	tb->base.do_process = true;
 
-	if(tb->visible && tb->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(tb->base.visible && tb->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -229,7 +229,7 @@ bool SDLUI_ToggleButton(SDLUI_Control_ToggleButton *tb)
 		float tex_w, tex_h;
 		SDL_GetTextureSize(tb->tex_text,&tex_w , &tex_h);
 
-		SDL_FRect r = {tb->x,tb->y,tb->w,tb->h};
+		SDL_FRect r = {tb->base.x,tb->base.y,tb->base.w,tb->base.h};
 		if(tb->tex_text != NULL)
 		{
 			r.w += SDLUI_MARGIN + tex_w;
@@ -251,9 +251,9 @@ bool SDLUI_ToggleButton(SDLUI_Control_ToggleButton *tb)
 
 bool SDLUI_RadioButton(SDLUI_Control_RadioButton *rb)
 {
-	rb->do_process = true;
+	rb->base.do_process = true;
 
-	if(rb->visible && rb->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(rb->base.visible && rb->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -265,7 +265,7 @@ bool SDLUI_RadioButton(SDLUI_Control_RadioButton *rb)
 		float tex_w, tex_h;
 		SDL_GetTextureSize(rb->tex_text, &tex_w , &tex_h);
 
-		SDL_FRect r = {rb->x,rb->y,rb->w,rb->h};
+		SDL_FRect r = {rb->base.x,rb->base.y,rb->base.w,rb->base.h};
 		if(rb->tex_text != NULL)
 		{
 			r.w += SDLUI_MARGIN + tex_w;
@@ -296,9 +296,9 @@ bool SDLUI_RadioButton(SDLUI_Control_RadioButton *rb)
 
 bool SDLUI_Text(SDLUI_Control_Text *txt)
 {
-	txt->do_process = true;
+	txt->base.do_process = true;
 
-	if(txt->visible && txt->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(txt->base.visible && txt->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		return true;
 	}
@@ -307,9 +307,9 @@ bool SDLUI_Text(SDLUI_Control_Text *txt)
 
 bool SDLUI_TabContainer(SDLUI_Control_TabContainer *tbc)
 {
-	tbc->do_process = true;
+	tbc->base.do_process = true;
 
-	if(tbc->visible && tbc->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(tbc->base.visible && tbc->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -318,7 +318,7 @@ bool SDLUI_TabContainer(SDLUI_Control_TabContainer *tbc)
 		my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
         #endif
 
-		SDL_FRect r = {tbc->x,tbc->y,tbc->w,tbc->bar_height};
+		SDL_FRect r = {tbc->base.x,tbc->base.y,tbc->base.w,tbc->bar_height};
 		SDL_FRect tab_r;
 		i32 offset = 0;
 		SDLUI_Control_Tab *tab;
@@ -330,7 +330,7 @@ bool SDLUI_TabContainer(SDLUI_Control_TabContainer *tbc)
 				for (int i = 0; i < tbc->tabs.size; ++i)
 				{
 					tab = (SDLUI_Control_Tab*)tbc->tabs.data[i];
-					tab_r = {tbc->x + offset, tbc->y, tab->w + SDLUI_MARGIN, 30};
+					tab_r = {tbc->base.x + offset, tbc->base.y, tab->base.w + SDLUI_MARGIN, 30};
 
 					if(SDLUI_PointInRect(tab_r, mx, my))
 					{
@@ -342,7 +342,7 @@ bool SDLUI_TabContainer(SDLUI_Control_TabContainer *tbc)
 						tbc->active_tab = tab;
 					}
 
-					offset += SDLUI_MARGIN + tab->w;
+					offset += SDLUI_MARGIN + tab->base.w;
 				}
 			}
 		}
@@ -352,9 +352,9 @@ bool SDLUI_TabContainer(SDLUI_Control_TabContainer *tbc)
 
 bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 {
-	sa->do_process = true;
+	sa->base.do_process = true;
 
-	if(sa->visible && sa->parent == SDLUI_Core.active_window )
+	if(sa->base.visible && sa->base.parent == CTRL(SDLUI_Core.active_window) )
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -365,9 +365,9 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 		SDL_FRect r, rv, rh;
 
-		r = {sa->x, sa->y, sa->w, sa->h};
+		r = {sa->base.x, sa->base.y, sa->base.w, sa->base.h};
 
-		if(sa->content_height > sa->h)
+		if(sa->content_height > sa->base.h)
 		{
 			if(SDLUI_PointInRect(r, mx, my))
 			{
@@ -383,7 +383,7 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 			static float my_offset;
 
-			rv = {sa->x + sa->w - sa->scrollbar_thickness, sa->y + sa->scroll_y, sa->scrollbar_thickness, sa->thumb_size_v};
+			rv = {sa->base.x + sa->base.w - sa->scrollbar_thickness, sa->base.y + sa->scroll_y, sa->scrollbar_thickness, sa->thumb_size_v};
 			if(SDLUI_PointInRect(rv, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
@@ -394,14 +394,14 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 			}
 
 			// scroll per page
-			rv.y = sa->y;
+			rv.y = sa->base.y;
 			rv.h = sa->scroll_y;
 
 			if(SDLUI_PointInRect(rv, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
 				{
-					float pages = (float)sa->content_height / (float)sa->h;
+					float pages = (float)sa->content_height / (float)sa->base.h;
 					float pixels_per_page = (float)sa->track_size_v / pages;
 					sa->scroll_y -= pixels_per_page;
 					sa->scroll_y = SDLUI_Clamp(sa->scroll_y, 0, sa->track_size_v - sa->thumb_size_v);
@@ -409,14 +409,14 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 				}
 			}
 
-			rv.y = sa->y + sa->scroll_y + sa->thumb_size_v;
+			rv.y = sa->base.y + sa->scroll_y + sa->thumb_size_v;
 			rv.h = sa->track_size_v - sa->thumb_size_v - sa->scroll_y;
 
 			if(SDLUI_PointInRect(rv, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
 				{
-					float pages = (float)sa->content_height / (float)sa->h;
+					float pages = (float)sa->content_height / (float)sa->base.h;
 					float pixels_per_page = (float)sa->track_size_v / pages;
 					sa->scroll_y += pixels_per_page;
 					sa->scroll_y = SDLUI_Clamp(sa->scroll_y, 0, sa->track_size_v - sa->thumb_size_v);
@@ -440,7 +440,7 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 			}
 		}
 
-		if(sa->content_width > sa->w)
+		if(sa->content_width > sa->base.w)
 		{
 			if(SDLUI_PointInRect(r, mx, my))
 			{
@@ -456,7 +456,7 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 			static float mx_offset;
 
-			rh = {sa->x + sa->scroll_x, sa->y + sa->h - sa->scrollbar_thickness, sa->thumb_size_h, sa->scrollbar_thickness};
+			rh = {sa->base.x + sa->scroll_x, sa->base.y + sa->base.h - sa->scrollbar_thickness, sa->thumb_size_h, sa->scrollbar_thickness};
 			if(SDLUI_PointInRect(rh, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
@@ -467,14 +467,14 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 			}
 
 			// scroll per page
-			rh.x = sa->x;
+			rh.x = sa->base.x;
 			rh.w = sa->scroll_x;
 
 			if(SDLUI_PointInRect(rh, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
 				{
-					float pages = (float)sa->content_width / (float)sa->w;
+					float pages = (float)sa->content_width / (float)sa->base.w;
 					float pixels_per_page = (float)sa->track_size_h / pages;
 					sa->scroll_x -= pixels_per_page;
 					sa->scroll_x = SDLUI_Clamp(sa->scroll_x, 0, sa->track_size_h - sa->thumb_size_h);
@@ -483,14 +483,14 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 			}
 			
 
-			rh.x = sa->x + sa->scroll_x + sa->thumb_size_h;
+			rh.x = sa->base.x + sa->scroll_x + sa->thumb_size_h;
 			rh.w = sa->track_size_h - sa->thumb_size_h - sa->scroll_x;
 
 			if(SDLUI_PointInRect(rh, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
 				{
-					float pages = (float)sa->content_width / (float)sa->w;
+					float pages = (float)sa->content_width / (float)sa->base.w;
 					float pixels_per_page = (float)sa->track_size_h / pages;
 					sa->scroll_x += pixels_per_page;
 					sa->scroll_x = SDLUI_Clamp(sa->scroll_x, 0, sa->track_size_h - sa->thumb_size_h);
@@ -521,11 +521,11 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i32 cur_index)
 {
-	lst->do_process = true;
+	lst->base.do_process = true;
 
 	i32 clicked = false;
 
-	if(lst->scroll_area->visible && lst->scroll_area->parent == SDLUI_Core.active_window)
+	if(lst->scroll_area->base.visible && lst->scroll_area->base.parent == CTRL(SDLUI_Core.active_window))
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -534,14 +534,14 @@ bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i3
 		my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
         #endif
 
-		SDL_FRect r = {lst->scroll_area->x, lst->scroll_area->y, lst->scroll_area->client_width, lst->scroll_area->client_height};
+		SDL_FRect r = {lst->scroll_area->base.x, lst->scroll_area->base.y, lst->scroll_area->client_width, lst->scroll_area->client_height};
 
 		if(SDLUI_PointInRect(r, mx, my) && cur_index == 0)
 		{
 			if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
 			{
 				float ratio = (float)lst->scroll_area->content_height / (float)lst->scroll_area->client_height;
-				float oy = my - lst->scroll_area->y + ((float)lst->scroll_area->scroll_y * ratio);
+				float oy = my - lst->scroll_area->base.y + ((float)lst->scroll_area->scroll_y * ratio);
 				lst->selected_index = oy / SDLUI_Font.height;
 				lst->selected_index = SDLUI_Clamp(lst->selected_index, 0, lst->num_items - 1);
 				clicked = true;
@@ -555,13 +555,13 @@ bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i3
 		SDL_DestroyTexture(lst->scroll_area->tex_rect);
 		float h = num_items * SDLUI_Font.height;
 
-		if(h < lst->scroll_area->h)
+		if(h < lst->scroll_area->base.h)
 		{
-			h = lst->scroll_area->h;
+			h = lst->scroll_area->base.h;
 		}
 
-		lst->scroll_area->tex_rect = SDL_CreateTexture(SDLUI_Core.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, lst->scroll_area->w, h);
-		lst->scroll_area->content_width = lst->scroll_area->w;
+		lst->scroll_area->tex_rect = SDL_CreateTexture(SDLUI_Core.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, lst->scroll_area->base.w, h);
+		lst->scroll_area->content_width = lst->scroll_area->base.w;
 		lst->scroll_area->content_height = h;
 	}
 
@@ -583,7 +583,7 @@ bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i3
 
 		float ratio = (float)lst->scroll_area->content_width / (float)lst->scroll_area->client_width;
 		float offset_x = lst->scroll_area->scroll_x * ratio;
-		SDL_FRect r = {offset_x, lst->selected_index * SDLUI_Font.height, lst->scroll_area->w, SDLUI_Font.height};
+		SDL_FRect r = {offset_x, lst->selected_index * SDLUI_Font.height, lst->scroll_area->base.w, SDLUI_Font.height};
 		SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 		
 	}
@@ -599,9 +599,9 @@ bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i3
 	{
 		SDL_DestroyTexture(lst->scroll_area->tex_rect);
 		float h = num_items * SDLUI_Font.height;
-		if(h < lst->scroll_area->h)
+		if(h < lst->scroll_area->base.h)
 		{
-			h = lst->scroll_area->h;
+			h = lst->scroll_area->base.h;
 		}
 		lst->scroll_area->tex_rect = SDL_CreateTexture(SDLUI_Core.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, lst->max_string_width, h);
 		lst->scroll_area->content_width = lst->max_string_width;
@@ -626,9 +626,9 @@ bool SDLUI_List(SDLUI_Control_List *lst, const char *cur_item, i32 num_items, i3
 
 bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx)
 {
-	tbx->do_process = true;
+	tbx->base.do_process = true;
 
-	if(tbx->visible && tbx->parent == SDLUI_Core.active_window && SDLUI_Core.active_window->is_hovered)
+	if(tbx->base.visible && tbx->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window->is_hovered)
 	{
 		float mx, my;
 		SDL_GetMouseState(&mx, &my);
@@ -637,7 +637,7 @@ bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx)
 		my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
         #endif
 
-		SDL_FRect r = {tbx->x,tbx->y,tbx->w,tbx->h};
+		SDL_FRect r = {tbx->base.x,tbx->base.y,tbx->base.w,tbx->base.h};
 
 		if(SDLUI_PointInRect(r, mx, my))
 		{
@@ -665,7 +665,7 @@ bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx)
 		}
 	}
 
-	if(tbx->focused && tbx->parent == SDLUI_Core.active_window)
+	if(tbx->focused && tbx->base.parent == CTRL(SDLUI_Core.active_window))
 	{
 		if(SDLUI_Core.e.type == SDL_EVENT_TEXT_INPUT)
 		{
