@@ -25,7 +25,7 @@
 #endif
 
 
-#include "src/sdlui.h"
+#include "./../src/sdlui.h"
 
 int main(int argc, char *argv[])
 {
