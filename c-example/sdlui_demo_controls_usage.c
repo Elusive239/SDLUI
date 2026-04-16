@@ -15,13 +15,13 @@ SDLUI_ScrollArea(sa1);
 
 // This is how we "feed" the list with elements. It's simply a loop where we pass the element caption,
 // the total count of elements, and current iteration index.
-// for (int i = 0; i < list_items.size(); ++i)
-// {
-// 	if(SDLUI_List(lst1, list_items[i].c_str(), list_items.size(), i))
-// 	{
-// 		printf( "%d\n", lst1->selected_index );
-// 	}
-// }
+for (int i = 0; i < list_items.len; ++i)
+{
+	if(SDLUI_List(lst1, StringList_get( &list_items, i), list_items.len, i))
+	{
+		printf( "%d\n", lst1->selected_index );
+	}
+}
 
 if(SDLUI_CheckBox(chk1)) {printf( "%s\n", "chk1" );}
 

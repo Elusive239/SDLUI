@@ -21,18 +21,24 @@ SDLUI_Control_ScrollArea *sa1 = SDLUI_CreateScrollArea(wnd1, 10, 220, 320, 160, 
 // A list needs an array of strings. It doesn't matter what kind of container it is (std::vector, C array of strings, etc),
 // as long as it can feed the list with a char* representing the caption for each element. This will make more sense
 // when we'll later call the control's usage function inside the application loop.
-// std::vector<std::string> list_items;
-// for (int i = 0; i < 100; ++i)
-// {
-// 	std::string cur_item = "List Item: ";
-// 	cur_item += std::to_string(i);
-// 	list_items.push_back(cur_item);
-// }
+
+StringList list_items;
+StringList_init(&list_items, 100);
+
+for (int i = 0; i < 100; ++i)
+{
+	const ITEM_SIZE = 128;
+	char* cur_item = (char*) calloc(ITEM_SIZE, sizeof(char));
+
+	sprintf(cur_item, "List Item: %d", i);
+	
+	StringList_append(&list_items, cur_item);
+}
 
 // We can now create a list and bind it to the ScrollArea above.
 // If the size of the data container isn't known at compile time we can simply pass zero to the last function parameter.
 // In this case we pass the size of the list_items vector.
-// SDLUI_Control_List *lst1 = SDLUI_CreateList(wnd1, sa1, list_items.size());
+SDLUI_Control_List *lst1 = SDLUI_CreateList(wnd1, sa1, list_items.len);
 
 // Some more controls...
 SDLUI_Control_Button *btn2 = SDLUI_CreateButton(wnd2, 10, 40, "ClickMe");
