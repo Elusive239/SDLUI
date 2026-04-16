@@ -34,7 +34,7 @@ bool SDLUI_Window(SDLUI_Control_Window *wnd)
 
 		if(wnd->has_close_button)
 		{
-			r = {wnd->base.x + wnd->base.w - 30, wnd->base.y, 30, 30};
+			r = (SDL_FRect){wnd->base.x + wnd->base.w - 30, wnd->base.y, 30, 30};
 
 			if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED && SDLUI_PointInRect(r, mx, my))
 			{
@@ -44,7 +44,7 @@ bool SDLUI_Window(SDLUI_Control_Window *wnd)
 			}
 		}
 
-		r = {wnd->base.x,wnd->base.y,wnd->base.w - (wnd->has_close_button * 30), 30};
+		r = (SDL_FRect){wnd->base.x,wnd->base.y,wnd->base.w - (wnd->has_close_button * 30), 30};
 
 		if(SDLUI_PointInRect(r, mx, my))
 		{
@@ -330,7 +330,7 @@ bool SDLUI_TabContainer(SDLUI_Control_TabContainer *tbc)
 				for (int i = 0; i < tbc->tabs.size; ++i)
 				{
 					tab = (SDLUI_Control_Tab*)tbc->tabs.data[i];
-					tab_r = {tbc->base.x + offset, tbc->base.y, tab->base.w + SDLUI_MARGIN, 30};
+					tab_r = (SDL_FRect){tbc->base.x + offset, tbc->base.y, tab->base.w + SDLUI_MARGIN, 30};
 
 					if(SDLUI_PointInRect(tab_r, mx, my))
 					{
@@ -365,7 +365,7 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 		SDL_FRect r, rv, rh;
 
-		r = {sa->base.x, sa->base.y, sa->base.w, sa->base.h};
+		r = (SDL_FRect){sa->base.x, sa->base.y, sa->base.w, sa->base.h};
 
 		if(sa->content_height > sa->base.h)
 		{
@@ -383,7 +383,7 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 			static float my_offset;
 
-			rv = {sa->base.x + sa->base.w - sa->scrollbar_thickness, sa->base.y + sa->scroll_y, sa->scrollbar_thickness, sa->thumb_size_v};
+			rv = (SDL_FRect){sa->base.x + sa->base.w - sa->scrollbar_thickness, sa->base.y + sa->scroll_y, sa->scrollbar_thickness, sa->thumb_size_v};
 			if(SDLUI_PointInRect(rv, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
@@ -456,7 +456,7 @@ bool SDLUI_ScrollArea(SDLUI_Control_ScrollArea *sa)
 
 			static float mx_offset;
 
-			rh = {sa->base.x + sa->scroll_x, sa->base.y + sa->base.h - sa->scrollbar_thickness, sa->thumb_size_h, sa->scrollbar_thickness};
+			rh = (SDL_FRect){sa->base.x + sa->scroll_x, sa->base.y + sa->base.h - sa->scrollbar_thickness, sa->thumb_size_h, sa->scrollbar_thickness};
 			if(SDLUI_PointInRect(rh, mx, my))
 			{
 				if(SDLUI_MouseButton(SDL_BUTTON_LEFT) == SDLUI_MOUSEBUTTON_PRESSED)
@@ -669,7 +669,7 @@ bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx)
 	{
 		if(SDLUI_Core.e.type == SDL_EVENT_TEXT_INPUT)
 		{
-			tbx->text.insert_char(SDLUI_Core.e.text.text[0], tbx->cursor_pos);
+			SDLUI_String_insert_char(&tbx->text, SDLUI_Core.e.text.text[0], tbx->cursor_pos);
 			tbx->cursor_pos++;
 
 			if(tbx->cursor_pos > tbx->max_chars)
@@ -787,14 +787,18 @@ bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx)
 					int now_cursor_pos = tbx->cursor_pos;
 					while(start_to_reverse > now_cursor_pos)
 					{
-						tbx->text.delete_char(start_to_reverse - 1);
+						SDLUI_String_delete_char(
+							&tbx->text, start_to_reverse - 1
+						);
 						start_to_reverse--;
 					}
 				} else
 				{
 					if(tbx->cursor_pos > 0)
 					{
-						tbx->text.delete_char(tbx->cursor_pos - 1);
+						SDLUI_String_delete_char(
+							&tbx->text, tbx->cursor_pos - 1
+						);
 						tbx->cursor_pos--;
 
 						if(tbx->text.length > tbx->max_chars - 1)
@@ -817,7 +821,7 @@ bool SDLUI_TextBox(SDLUI_Control_TextBox *tbx)
 				}
 			}
 		}
-		SDLUI_Core.e = {};
+		memset(&SDLUI_Core.e,0, sizeof(SDL_Event));
 	}
 
 	return false;

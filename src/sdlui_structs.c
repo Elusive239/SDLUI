@@ -1,12 +1,15 @@
-struct SDLUI_String
+typedef struct SDLUI_String
 {
-	i32 capacity = 0;
-	i32 length = 0;
-	bool modified = false;
+	i32 capacity ;
+	i32 length ;
+	bool modified ;
 	char *data;
 
-	#ifdef CPP 
+	#ifdef __cplusplus 
 	inline void create(char const *str) {
+		this->capacity = 0;
+		this->length = 0;
+		this->modified = false;
 		SDLUI_String_create(this, str);
 	}
 
@@ -26,58 +29,77 @@ struct SDLUI_String
 		return SDLUI_String_delete_char(this, pos);
 	}
 	#endif
-};
+} SDLUI_String;
 
-struct SDLUI_Theme
+typedef struct SDLUI_Theme
 {
-	SDL_Color col_window_bg = {30, 30, 30, 255};
-	SDL_Color col_border = {68, 68, 68, 255};
-	SDL_Color col_active_window_bar = {0, 0, 0, 255};
-	SDL_Color col_inactive_window_bar = {22, 22, 22, 255};
-	SDL_Color col_button_normal = {28, 28, 28, 255};
-	SDL_Color col_button_click = {0, 0, 0, 255};
-	SDL_Color col_highlight = {0, 120, 215, 255};
-	SDL_Color col_test = {255, 0, 225, 255};
-	SDL_Color col_scrollbar_thumb = {26, 26, 26, 255};
-	SDL_Color col_scrollbar_track = {56, 56, 56, 255};
-	SDL_Color col_white = {255, 255, 255, 255};
-	SDL_Color col_grey = {58, 58, 58, 255};
-	SDL_Color col_red = {222, 17, 35, 255};
-	SDL_Color col_black = {0, 0, 0, 255};
-	SDL_Color col_list_bg = {32, 32, 32, 255};
-	SDL_Color col_textbox_bg = {22, 22, 22, 255};
+	SDL_Color col_window_bg ;
+	SDL_Color col_border ;
+	SDL_Color col_active_window_bar ;
+	SDL_Color col_inactive_window_bar ;
+	SDL_Color col_button_normal ;
+	SDL_Color col_button_click ;
+	SDL_Color col_highlight ;
+	SDL_Color col_test ;
+	SDL_Color col_scrollbar_thumb ;
+	SDL_Color col_scrollbar_track ;
+	SDL_Color col_white ;
+	SDL_Color col_grey ;
+	SDL_Color col_red ;
+	SDL_Color col_black ;
+	SDL_Color col_list_bg ;
+	SDL_Color col_textbox_bg ;
+} SDLUI_Theme;
+
+const SDLUI_Theme DEFAULT_THEME = {
+	.col_window_bg = {30, 30, 30, 255},
+	.col_border = {68, 68, 68, 255},
+	.col_active_window_bar = {0, 0, 0, 255},
+	.col_inactive_window_bar = {22, 22, 22, 255},
+	.col_button_normal = {28, 28, 28, 255},
+	.col_button_click = {0, 0, 0, 255},
+	.col_highlight = {0, 120, 215, 255},
+	.col_test = {255, 0, 225, 255},
+	.col_scrollbar_thumb = {26, 26, 26, 255},
+	.col_scrollbar_track = {56, 56, 56, 255},
+	.col_white = {255, 255, 255, 255},
+	.col_grey = {58, 58, 58, 255},
+	.col_red = {222, 17, 35, 255},
+	.col_black = {0, 0, 0, 255},
+	.col_list_bg = {32, 32, 32, 255},
+	.col_textbox_bg = {22, 22, 22, 255},
 };
 
-struct SDLUI_Control
+typedef struct SDLUI_Control
 {
 	SDLUI_CONTROL_TYPE type;
 	float x;
 	float y;
 	float w;
 	float h;
-	bool visible = true;
-	bool enabled = true;
-	bool owned_by_window = true;
-	bool do_process = false;
-	SDLUI_Control *parent;
-};
+	bool visible ;
+	bool enabled ;
+	bool owned_by_window ;
+	bool do_process ;
+	struct SDLUI_Control *parent;
+} SDLUI_Control;
 
-struct __SDLUI_Font
+typedef struct __SDLUI_Font
 {
 	TTF_Font *handle;
-	i32 size = 13;
+	i32 size;
 	i32 width;
 	i32 height;
 	char ascii[96];
 	SDL_Texture *tex_font;
-}SDLUI_Font;
+} __SDLUI_Font;
 
-struct SDLUI_ArrayOfControls {
+typedef struct SDLUI_ArrayOfControls {
 	i32 capacity;
 	i32 size;
 	SDLUI_Control **data;
 
-	#ifdef CPP
+	#ifdef __cplusplus
 	inline void create() {
 		SDLUI_ArrayOfControls_create(this);
 	}
@@ -98,21 +120,19 @@ struct SDLUI_ArrayOfControls {
 		SDLUI_ArrayOfControls_to_back(this, elem);	
 	}
 	#endif
-};
+} SDLUI_ArrayOfControls;
 
-SDLUI_ArrayOfControls SDLUI_Window_Collection;
-
-struct SDLUI_Control_Window 
+typedef struct SDLUI_Control_Window 
 {
 	struct SDLUI_Control base;
 	float drag_x;
 	float drag_y;
-	bool is_dragged = false;
-	bool is_resized = false;
-	bool is_hovered = false;
+	bool is_dragged ;
+	bool is_resized ;
+	bool is_hovered ;
 	SDLUI_RESIZE_DIRECTION resize_direction;
-	bool visible_last_frame = false;
-	bool enabled_last_frame = false;
+	bool visible_last_frame ;
+	bool enabled_last_frame ;
 	SDLUI_String title;
 	SDL_Texture *tex_title;
 	SDL_Texture *tex_rect;
@@ -120,19 +140,19 @@ struct SDLUI_Control_Window
 	bool has_close_button;
 	bool can_be_resized;
 	SDLUI_ArrayOfControls children;
-};
+} SDLUI_Control_Window;
 
-struct SDLUI_Control_Button 
+typedef struct SDLUI_Control_Button 
 {
 	struct SDLUI_Control base;
 	SDLUI_String text;
 	SDLUI_ALIGN align;
 	SDLUI_BUTTON_STATE state;
 	SDL_Texture *tex_text;
-};
+} SDLUI_Control_Button;
 
 // Generisize for different int types?
-struct SDLUI_Control_SliderInt 
+typedef struct SDLUI_Control_SliderInt 
 {
 	struct SDLUI_Control base;
 	i32 min;
@@ -141,25 +161,25 @@ struct SDLUI_Control_SliderInt
 	SDLUI_ORIENTATION orientation;
 	float thumb_size;
 	bool is_changing;
-};
+} SDLUI_Control_SliderInt;
 
-struct SDLUI_Control_CheckBox 
+typedef struct SDLUI_Control_CheckBox 
 {
 	struct SDLUI_Control base;
 	bool checked;
 	SDLUI_String text;
 	SDL_Texture *tex_text;
-};
+} SDLUI_Control_CheckBox;
 
-struct SDLUI_Control_ToggleButton 
+typedef struct SDLUI_Control_ToggleButton 
 {
 	struct SDLUI_Control base;
 	bool checked;
 	SDLUI_String text;
 	SDL_Texture *tex_text;
-};
+} SDLUI_Control_ToggleButton;
 
-struct SDLUI_Control_RadioButton 
+typedef struct SDLUI_Control_RadioButton 
 {
 	struct SDLUI_Control base;
 	SDLUI_ArrayOfControls *group;
@@ -167,9 +187,9 @@ struct SDLUI_Control_RadioButton
 	bool checked_changed;
 	SDLUI_String text;
 	SDL_Texture *tex_text;
-};
+} SDLUI_Control_RadioButton;
 
-struct SDLUI_Control_TextBox 
+typedef struct SDLUI_Control_TextBox 
 {
 	struct SDLUI_Control base;
 	SDLUI_String text;
@@ -180,9 +200,9 @@ struct SDLUI_Control_TextBox
 	i32 max_chars;
 	i32 scroll;
 	bool focused;
-};
+} SDLUI_Control_TextBox;
 
-struct __SDLUI_Core
+typedef struct __SDLUI_Core
 {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -191,8 +211,8 @@ struct __SDLUI_Core
     float texture_window_hdpi_ratio_x;
     float texture_window_hdpi_ratio_y;
     
-	u8 mouse_current_frame[5] = {0};
-	u8 mouse_last_frame[5] = {0};
+	u8 mouse_current_frame[5];
+	u8 mouse_last_frame[5] ;
 	float mouse_wheel_y;
 	float mouse_wheel_x;
 	SDLUI_Theme theme;
@@ -214,25 +234,25 @@ struct __SDLUI_Core
 	SDL_Texture *tex_circle_fill_2;
 	SDL_Texture *tex_toggle;
 	SDL_Texture *tex_close;
-}SDLUI_Core;
+} __SDLUI_Core;
 
-struct SDLUI_Control_Tab 
+typedef struct SDLUI_Control_Tab 
 {
 	struct SDLUI_Control base;
 	i32 index;
 	SDLUI_String text;
 	SDL_Texture *tex_text;
 	SDLUI_ArrayOfControls children;
-};
+} SDLUI_Control_Tab;
 
-struct SDLUI_Control_TabContainer 
+typedef struct SDLUI_Control_TabContainer 
 {
 	struct SDLUI_Control base;
 	float bar_height;
 	SDLUI_ArrayOfControls tabs;
 	SDLUI_Control_Tab *active_tab;
 	SDLUI_ORIENTATION orientation;
-	#ifdef CPP
+	#ifdef __cplusplus
 	inline void add_tab(char const *text) {
 		SDLUI_TabContainer_add_tab(this, text);
 	}
@@ -245,23 +265,23 @@ struct SDLUI_Control_TabContainer
 		SDLUI_TabContainer_add_child(this, tab_index, ctrl);
 	}
 	#endif
-};
+} SDLUI_Control_TabContainer;
 
-struct SDLUI_Control_Label 
+typedef struct SDLUI_Control_Label 
 {
 	struct SDLUI_Control base;
 	SDL_Texture *tex_text;
-};
+} SDLUI_Control_Label;
 
-struct SDLUI_Control_Text 
+typedef struct SDLUI_Control_Text 
 {
 	struct SDLUI_Control base;
 	SDLUI_String text;
 	bool modified;
 	SDL_Texture *tex_text;
-};
+} SDLUI_Control_Text;
 
-struct SDLUI_Control_ScrollArea 
+typedef struct SDLUI_Control_ScrollArea 
 {
 	struct SDLUI_Control base;
 	float content_width;
@@ -278,9 +298,9 @@ struct SDLUI_Control_ScrollArea
 	bool is_changing_v;
 	bool is_changing_h;
 	SDL_Texture *tex_rect;
-};
+} SDLUI_Control_ScrollArea;
 
-struct SDLUI_Control_List 
+typedef struct SDLUI_Control_List 
 {
 	struct SDLUI_Control base;
 	SDLUI_Control_ScrollArea *scroll_area;
@@ -288,4 +308,8 @@ struct SDLUI_Control_List
 	i32 selected_index;
 	i32 max_string_width;
 	const char *cur_item;
-};
+} SDLUI_Control_List ;
+
+SDLUI_ArrayOfControls SDLUI_Window_Collection;
+__SDLUI_Core SDLUI_Core;
+__SDLUI_Font SDLUI_Font;

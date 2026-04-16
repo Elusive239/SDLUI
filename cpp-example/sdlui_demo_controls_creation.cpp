@@ -52,13 +52,13 @@ SDLUI_ArrayOfControls rb_group1 = SDLUI_CreateRadioButtonGroup();
 SDLUI_ArrayOfControls rb_group2 = SDLUI_CreateRadioButtonGroup();
 
 // Create a bunch of RadioButtons, assigning them to their respective group.
-SDLUI_Control_RadioButton *rb1 = SDLUI_CreateRadioButton(wnd3, rb_group1, 30, 80, "RadioButton1", true);
-SDLUI_Control_RadioButton *rb2 = SDLUI_CreateRadioButton(wnd3, rb_group1, 30, 110, "RadioButton2", false);
-SDLUI_Control_RadioButton *rb3 = SDLUI_CreateRadioButton(wnd3, rb_group1, 30, 140, "RadioButton3", false);
+SDLUI_Control_RadioButton *rb1 = SDLUI_CreateRadioButton(wnd3, &rb_group1, 30, 80, "RadioButton1", true);
+SDLUI_Control_RadioButton *rb2 = SDLUI_CreateRadioButton(wnd3, &rb_group1, 30, 110, "RadioButton2", false);
+SDLUI_Control_RadioButton *rb3 = SDLUI_CreateRadioButton(wnd3, &rb_group1, 30, 140, "RadioButton3", false);
 
-SDLUI_Control_RadioButton *rb4 = SDLUI_CreateRadioButton(wnd3, rb_group2, 220, 80, "RadioButton4", false);
-SDLUI_Control_RadioButton *rb5 = SDLUI_CreateRadioButton(wnd3, rb_group2, 220, 110, "RadioButton5", true);
-SDLUI_Control_RadioButton *rb6 = SDLUI_CreateRadioButton(wnd3, rb_group2, 220, 140, "RadioButton6", false);
+SDLUI_Control_RadioButton *rb4 = SDLUI_CreateRadioButton(wnd3, &rb_group2, 220, 80, "RadioButton4", false);
+SDLUI_Control_RadioButton *rb5 = SDLUI_CreateRadioButton(wnd3, &rb_group2, 220, 110, "RadioButton5", true);
+SDLUI_Control_RadioButton *rb6 = SDLUI_CreateRadioButton(wnd3, &rb_group2, 220, 140, "RadioButton6", false);
 
 // More controls...
 SDLUI_Control_ToggleButton *tb1 = SDLUI_CreateToggleButton(wnd3, 30, 80, "Toggle Button", true);

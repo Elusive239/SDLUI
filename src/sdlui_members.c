@@ -93,6 +93,14 @@ bool SDLUI_String_delete_char(SDLUI_String* self, i32 pos)
 	return true;
 }
 
+void SDLUI_InitControl(SDLUI_Control* control) {
+	control->visible = true;
+	control->enabled = true;
+	control->owned_by_window = true;
+	control->do_process = false;
+}
+#define SDLUI_InitControl(control) (SDLUI_InitControl(CTRL(control)))
+
 void SDLUI_ArrayOfControls_create(SDLUI_ArrayOfControls* self)
 {
 	self->capacity = SDLUI_COLLECTION_CHUNK;
@@ -111,7 +119,7 @@ void SDLUI_ArrayOfControls_ensure_capacity(SDLUI_ArrayOfControls* self)
 
 void SDLUI_ArrayOfControls_push(SDLUI_ArrayOfControls* self, SDLUI_Control *elem)
 {
-	self->ensure_capacity();
+	SDLUI_ArrayOfControls_ensure_capacity(self);
 	(self->data)[self->size] = elem;
 	self->size++;
 }
@@ -151,16 +159,20 @@ void SDLUI_TabContainer_add_tab(SDLUI_Control_TabContainer* self, char const *te
 {
 	SDLUI_Control_Tab *tab = (SDLUI_Control_Tab*)malloc(sizeof(SDLUI_Control_Tab));
 	tab->base.type = SDLUI_CONTROL_TYPE_TAB;
-	tab->text.create(text);
+	SDLUI_String_create(
+		&tab->text , text
+	);
 	tab->base.w = (tab->text.length) * SDLUI_Font.width;
 	tab->base.h = SDLUI_Font.height;
-	tab->children.create();
+	SDLUI_ArrayOfControls_create(
+		&tab->children
+	);
 	tab->index = self->tabs.size;
 	SDL_Color c = {255, 255, 255, 255};
 	SDL_Surface *s = TTF_RenderText_Blended(SDLUI_Font.handle,tab->text.data, 0, c);
 	tab->tex_text = SDL_CreateTextureFromSurface(SDLUI_Core.renderer, s);
 	SDL_DestroySurface(s);
-	self->tabs.push(CTRL(tab));
+	SDLUI_ArrayOfControls_push(&self->tabs, tab);
 	self->active_tab = tab;
 }
 
@@ -189,11 +201,11 @@ void SDLUI_TabContainer_add_child (SDLUI_Control_TabContainer* self, i32 tab_ind
 				if(tab->index == tab_index)
 				{
 					ctrl->visible = false;
-					tab->children.push(ctrl);
+					SDLUI_ArrayOfControls_push(&tab->children, ctrl);
 					ctrl->owned_by_window = false;
 				}
 			}
 		}
 	}
 }
-#define SDLUI_TabContainer_add_child (self, tab_index, ctrl) SDLUI_TabContainer_add_child((self), (tab_index), CTRL(ctrl))
+#define SDLUI_TabContainer_add_child(self, tab_index, child) (SDLUI_TabContainer_add_child((self), (tab_index), CTRL(child)))

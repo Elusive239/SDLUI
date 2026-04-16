@@ -45,6 +45,12 @@ void SDLUI_Init(SDL_Renderer *r, SDL_Window *w)
 
 	TTF_Init();
 
+	// Default values
+	memset(SDLUI_Core.mouse_current_frame, 0, 5);
+	memset(SDLUI_Core.mouse_last_frame, 0, 5);
+	SDLUI_Core.theme = DEFAULT_THEME;
+	SDLUI_Font.size = 13;
+
 	//couldn't get the font to load from memory... yet! wrote it to a file and read it back the "normal" way, for now.
 	SDLUI_Font.handle = TTF_OpenFont("cool_font.ttf", 14);//fontFromMem( (void*)sdlui_font_data, sizeof(sdlui_font_data), 12);
 	// SDL_Log("%s", SDL_GetError());
@@ -63,7 +69,9 @@ void SDLUI_Init(SDL_Renderer *r, SDL_Window *w)
     SDLUI_Core.texture_window_hdpi_ratio_x=(float)renderer_width/SDLUI_Core.window_width;
     SDLUI_Core.texture_window_hdpi_ratio_y=(float)renderer_height/SDLUI_Core.window_height;
     
-	SDLUI_Window_Collection.create();
+	SDLUI_ArrayOfControls_create(
+		&SDLUI_Window_Collection
+	);
 
 	SDLUI_Core.cursor_arrow = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
 	SDLUI_Core.cursor_ibeam = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
@@ -174,22 +182,22 @@ void SDLUI_Colorize(SDL_Texture *t, SDL_Color c)
 
 void SDLUI_SetActiveWindow(SDLUI_Control_Window *wnd)
 {
-	SDLUI_Window_Collection.to_back(CTRL(wnd));
+	SDLUI_ArrayOfControls_to_back(&SDLUI_Window_Collection ,wnd);
 	SDLUI_Core.active_window = wnd;
 }
 
 SDLUI_RESIZE_DIRECTION SDLUI_SetWindowResizeCursor(SDLUI_Control_Window *wnd, float mousex, float mousey)
 {
 	SDL_FRect left, top, right, bottom, lt, rt, lb, rb;
-	left = {wnd->base.x-8, wnd->base.y, 8, wnd->base.h};
-	top = {wnd->base.x, wnd->base.y-8, wnd->base.w, 8};
-	right = {wnd->base.x+wnd->base.w, wnd->base.y, 8, wnd->base.h};
-	bottom = {wnd->base.x, wnd->base.y+wnd->base.h, wnd->base.w, 8};
+	left = (SDL_FRect){wnd->base.x-8, wnd->base.y, 8, wnd->base.h};
+	top = (SDL_FRect){wnd->base.x, wnd->base.y-8, wnd->base.w, 8};
+	right = (SDL_FRect){wnd->base.x+wnd->base.w, wnd->base.y, 8, wnd->base.h};
+	bottom = (SDL_FRect){wnd->base.x, wnd->base.y+wnd->base.h, wnd->base.w, 8};
 
-	lt = {wnd->base.x-8, wnd->base.y-8, 8, 8};
-	rt = {wnd->base.x+wnd->base.w, wnd->base.y-8, 8, 8};
-	lb = {wnd->base.x-8, wnd->base.y+wnd->base.h, 8, 8};
-	rb = {wnd->base.x+wnd->base.w, wnd->base.y+wnd->base.h, 8, 8};
+	lt = (SDL_FRect){wnd->base.x-8, wnd->base.y-8, 8, 8};
+	rt = (SDL_FRect){wnd->base.x+wnd->base.w, wnd->base.y-8, 8, 8};
+	lb = (SDL_FRect){wnd->base.x-8, wnd->base.y+wnd->base.h, 8, 8};
+	rb = (SDL_FRect){wnd->base.x+wnd->base.w, wnd->base.y+wnd->base.h, 8, 8};
 
 	if(SDLUI_PointInRect(left, mousex, mousey))
 	{
@@ -386,7 +394,7 @@ void SDLUI_WindowHandler()
 
 			if(wnd->base.visible)
 			{
-				r = {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
+				r = (SDL_FRect) {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
 
 				if(SDLUI_PointInRect(r, mx, my))
 				{

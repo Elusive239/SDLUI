@@ -19,7 +19,7 @@
 #include <vector>
 
 #ifdef __APPLE__
-    #include <SDL2/SDL.h>
+    #include <SDL3/SDL.h>
 #else
     #include "SDL.h"
 #endif
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 			}
 
 			// Captures mouse input and window events.
-			SDLUI_EventHandler(e);
+			SDLUI_EventHandler(&e);
 		}
 
 		// Manages SDLUI windows and their child controls

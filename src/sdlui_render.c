@@ -3,14 +3,14 @@ void SDLUI_DrawText(i32 x, i32 y, const char *text, SDL_Texture *dst)
 	SDL_SetRenderTarget(SDLUI_Core.renderer, dst);
 	i32 cur_char;
 	SDL_FRect glyph_rect;
-	SDL_FRect pos = {x, y, SDLUI_Font.width, SDLUI_Font.height};
+	SDL_FRect pos = (SDL_FRect) {x, y, SDLUI_Font.width, SDLUI_Font.height};
 
 	i32 count = strlen(text);
 
 	for (int i = 0; i < count; ++i)
 	{
 		cur_char = (i32)text[i];
-		glyph_rect = {(cur_char - 32) * SDLUI_Font.width, 0, SDLUI_Font.width, SDLUI_Font.height};
+		glyph_rect = (SDL_FRect) {(cur_char - 32) * SDLUI_Font.width, 0, SDLUI_Font.width, SDLUI_Font.height};
 
 		SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Font.tex_font, &glyph_rect, &pos);
 		pos.x += SDLUI_Font.width;
@@ -24,12 +24,12 @@ void SDLUI_DrawTextRange(i32 x, i32 y, const char *text, i32 start, i32 length, 
 	SDL_SetRenderTarget(SDLUI_Core.renderer, dst);
 	i32 cur_char;
 	SDL_FRect glyph_rect;
-	SDL_FRect pos = {x, y, SDLUI_Font.width, SDLUI_Font.height};
+	SDL_FRect pos = (SDL_FRect) {x, y, SDLUI_Font.width, SDLUI_Font.height};
 
 	for (int i = start; i < start + length; ++i)
 	{
 		cur_char = (i32)text[i];
-		glyph_rect = {(cur_char - 32) * SDLUI_Font.width, 0, SDLUI_Font.width, SDLUI_Font.height};
+		glyph_rect = (SDL_FRect) {(cur_char - 32) * SDLUI_Font.width, 0, SDLUI_Font.width, SDLUI_Font.height};
 
 		SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Font.tex_font, &glyph_rect, &pos);
 		pos.x += SDLUI_Font.width;
@@ -53,7 +53,7 @@ void SDLUI_Render_Button(SDLUI_Control_Button *btn)
 		i32 xx = btn->base.x - btn->base.parent->x;
 		i32 yy = btn->base.y - btn->base.parent->y;
 
-		SDL_FRect r = {xx, yy, btn->base.w, btn->base.h};
+		SDL_FRect r = (SDL_FRect) {xx, yy, btn->base.w, btn->base.h};
 
 		switch (btn->state)
 		{
@@ -90,7 +90,7 @@ void SDLUI_Render_Button(SDLUI_Control_Button *btn)
 			offset -= SDLUI_MARGIN;
 		}
 
-		r = {xx + offset, yy + SDLUI_MARGIN, tex_w, tex_h};
+		r = (SDL_FRect) {xx + offset, yy + SDLUI_MARGIN, tex_w, tex_h};
 		SDL_RenderTexture(SDLUI_Core.renderer, btn->tex_text, NULL, &r);
 	}
 }
@@ -112,7 +112,7 @@ void SDLUI_Render_SliderInt(SDLUI_Control_SliderInt *si)
 			SDLUI_SetColor(SDLUI_Core.theme.col_border);
 			SDL_RenderLine(SDLUI_Core.renderer, xx + fill, yy + 8, xx + si->base.w, yy + 8);
 
-			SDL_FRect r = {xx + fill-8, yy, 16, 16};
+			SDL_FRect r = (SDL_FRect) {xx + fill-8, yy, 16, 16};
 			r.x = SDLUI_Clamp(r.x, xx, xx + si->base.w - 14);
 			SDLUI_Colorize(SDLUI_Core.tex_circle_fill_1, SDLUI_Core.theme.col_scrollbar_thumb);
 			SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_circle_fill_1, NULL, &r);
@@ -132,7 +132,7 @@ void SDLUI_Render_SliderInt(SDLUI_Control_SliderInt *si)
 			SDLUI_SetColor(SDLUI_Core.theme.col_border);
 			SDL_RenderLine(SDLUI_Core.renderer, xx + 8, yy + si->base.h - fill, xx + 8, yy);
 
-			SDL_FRect r = {xx, yy + si->base.h - fill-8, 16, 16};
+			SDL_FRect r = (SDL_FRect) {xx, yy + si->base.h - fill-8, 16, 16};
 			r.y = SDLUI_Clamp(r.y, yy, yy + si->base.h - 14);
 			SDLUI_Colorize(SDLUI_Core.tex_circle_fill_1, SDLUI_Core.theme.col_scrollbar_thumb);
 			SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_circle_fill_1, NULL, &r);
@@ -151,7 +151,7 @@ void SDLUI_Render_CheckBox(SDLUI_Control_CheckBox *chk)
 
 		SDLUI_SetColor(SDLUI_Core.theme.col_white);
 
-		SDL_FRect r = {xx, yy, chk->base.w, chk->base.h};
+		SDL_FRect r = (SDL_FRect) {xx, yy, chk->base.w, chk->base.h};
 		SDL_RenderRect(SDLUI_Core.renderer, &r);
 
 		if(chk->checked)
@@ -163,7 +163,7 @@ void SDLUI_Render_CheckBox(SDLUI_Control_CheckBox *chk)
 		{
 			float tex_w, tex_h;
 			SDL_GetTextureSize(chk->tex_text,  &tex_w, &tex_h);
-			r = {xx + chk->base.w + SDLUI_MARGIN, yy+2, tex_w, tex_h};
+			r = (SDL_FRect) {xx + chk->base.w + SDLUI_MARGIN, yy+2, tex_w, tex_h};
 			SDL_RenderTexture(SDLUI_Core.renderer, chk->tex_text, NULL, &r);
 		}
 	}
@@ -187,7 +187,7 @@ void SDLUI_Render_Text(SDLUI_Control_Text *txt)
 		float yy = txt->base.y - txt->base.parent->y;
 
 		SDLUI_SetColor(SDLUI_Core.theme.col_white);
-		SDL_FRect r = {xx, yy, txt->base.w, txt->base.h};
+		SDL_FRect r = (SDL_FRect) {xx, yy, txt->base.w, txt->base.h};
 		SDL_RenderTexture(SDLUI_Core.renderer, txt->tex_text, NULL, &r);
 	}
 }
@@ -199,19 +199,19 @@ void SDLUI_Render_ToggleButton(SDLUI_Control_ToggleButton *tb)
 		float xx = tb->base.x - tb->base.parent->x;
 		float yy = tb->base.y - tb->base.parent->y;
 
-		SDL_FRect r = {xx, yy, tb->base.w, tb->base.h};
+		SDL_FRect r = (SDL_FRect) {xx, yy, tb->base.w, tb->base.h};
 		SDLUI_Colorize(SDLUI_Core.tex_circle, SDLUI_Core.theme.col_white);
 		SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_toggle, NULL, &r);
 
 		if(tb->checked)
 		{
-			r = {xx + 16, yy, tb->base.w - 16, tb->base.h};
+			r = (SDL_FRect) {xx + 16, yy, tb->base.w - 16, tb->base.h};
 			SDLUI_Colorize(SDLUI_Core.tex_circle_fill_2, SDLUI_Core.theme.col_highlight);
 			SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_circle_fill_2, NULL, &r);
 		}
 		else
 		{
-			r = {xx, yy, tb->base.w - 16, tb->base.h};
+			r = (SDL_FRect) {xx, yy, tb->base.w - 16, tb->base.h};
 			SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_circle_fill_2, NULL, &r);
 		}
 
@@ -221,7 +221,7 @@ void SDLUI_Render_ToggleButton(SDLUI_Control_ToggleButton *tb)
 		{
 			float tex_w, tex_h;
 			SDL_GetTextureSize(tb->tex_text,  &tex_w, &tex_h);
-			r = {xx + tb->base.w + SDLUI_MARGIN, yy+2, tex_w, tex_h};
+			r = (SDL_FRect) {xx + tb->base.w + SDLUI_MARGIN, yy+2, tex_w, tex_h};
 			SDL_RenderTexture(SDLUI_Core.renderer, tb->tex_text, NULL, &r);
 		}
 	}
@@ -235,7 +235,7 @@ void SDLUI_Render_RadioButton(SDLUI_Control_RadioButton *rb)
 		float yy = rb->base.y - rb->base.parent->y;
 
 		SDLUI_Colorize(SDLUI_Core.tex_circle, SDLUI_Core.theme.col_white);
-		SDL_FRect r = {xx, yy, rb->base.w, rb->base.h};
+		SDL_FRect r = (SDL_FRect) {xx, yy, rb->base.w, rb->base.h};
 		SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_circle, NULL, &r);
 
 		if(rb->checked)
@@ -247,7 +247,7 @@ void SDLUI_Render_RadioButton(SDLUI_Control_RadioButton *rb)
 		{
 			float tex_w, tex_h;
 			SDL_GetTextureSize(rb->tex_text,  &tex_w, &tex_h);
-			r = {xx + rb->base.w + SDLUI_MARGIN, yy+2, tex_w, tex_h};
+			r = (SDL_FRect) {xx + rb->base.w + SDLUI_MARGIN, yy+2, tex_w, tex_h};
 			SDL_RenderTexture(SDLUI_Core.renderer, rb->tex_text, NULL, &r);
 		}
 	}
@@ -261,7 +261,7 @@ void SDLUI_Render_Tabcontainer(SDLUI_Control_TabContainer *tbc)
 		float yy = tbc->base.y - tbc->base.parent->y;
 		float offset = 0;
 
-		SDL_FRect r = {xx, yy, tbc->base.w, tbc->bar_height};
+		SDL_FRect r = (SDL_FRect) {xx, yy, tbc->base.w, tbc->bar_height};
 		SDLUI_SetColor(SDLUI_Core.theme.col_inactive_window_bar);
 		SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
@@ -272,7 +272,7 @@ void SDLUI_Render_Tabcontainer(SDLUI_Control_TabContainer *tbc)
 			tab = (SDLUI_Control_Tab*)tbc->tabs.data[i];
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_white);
-			r = {SDLUI_MARGIN + xx + offset, yy + SDLUI_MARGIN, tab->base.w, tab->base.h};
+			r = (SDL_FRect) {SDLUI_MARGIN + xx + offset, yy + SDLUI_MARGIN, tab->base.w, tab->base.h};
 			SDL_RenderTexture(SDLUI_Core.renderer, tab->tex_text, NULL, &r);
 
 			if(tab == tbc->active_tab)
@@ -287,11 +287,11 @@ void SDLUI_Render_Tabcontainer(SDLUI_Control_TabContainer *tbc)
 		}
 
 		SDLUI_SetColor(SDLUI_Core.theme.col_window_bg);
-		r = {xx, yy + tbc->bar_height, tbc->base.w, tbc->base.h - tbc->bar_height};
+		r = (SDL_FRect) {xx, yy + tbc->bar_height, tbc->base.w, tbc->base.h - tbc->bar_height};
 		SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 		SDLUI_SetColor(SDLUI_Core.theme.col_grey);
-		r = {xx, yy, tbc->base.w, tbc->base.h};
+		r = (SDL_FRect) {xx, yy, tbc->base.w, tbc->base.h};
 		SDL_RenderRect(SDLUI_Core.renderer, &r);
 
 		tab = (SDLUI_Control_Tab*)tbc->active_tab;
@@ -341,13 +341,13 @@ void SDLUI_Render_ScrollArea(SDLUI_Control_ScrollArea *sa)
 			// SDL_Log("Scroll Height!");
 			// vertical scrollbar
 			SDLUI_SetColor(SDLUI_Core.theme.col_scrollbar_track);
-			r = {xx + sa->base.w - sa->scrollbar_thickness, yy, sa->scrollbar_thickness, sa->track_size_v};
+			r = (SDL_FRect) {xx + sa->base.w - sa->scrollbar_thickness, yy, sa->scrollbar_thickness, sa->track_size_v};
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_scrollbar_thumb);
 			sa->thumb_size_v = (float)(sa->track_size_v * (sa->base.h - sa->scrollbar_thickness)) / (float)sa->content_height;
 
-			r = {xx + sa->base.w - sa->scrollbar_thickness+1, yy + sa->scroll_y, sa->scrollbar_thickness-4, sa->thumb_size_v};
+			r = (SDL_FRect) {xx + sa->base.w - sa->scrollbar_thickness+1, yy + sa->scroll_y, sa->scrollbar_thickness-4, sa->thumb_size_v};
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 		}
 
@@ -356,13 +356,13 @@ void SDLUI_Render_ScrollArea(SDLUI_Control_ScrollArea *sa)
 			// SDL_Log("Scroll Width!");
 			// horizontal scrollbar
 			SDLUI_SetColor(SDLUI_Core.theme.col_scrollbar_track);
-			r = {xx, yy + sa->base.h - sa->scrollbar_thickness, sa->track_size_h, sa->scrollbar_thickness};
+			r = (SDL_FRect) {xx, yy + sa->base.h - sa->scrollbar_thickness, sa->track_size_h, sa->scrollbar_thickness};
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_scrollbar_thumb);
 			sa->thumb_size_h = (float)(sa->track_size_h * (sa->base.w - sa->scrollbar_thickness)) / (float)sa->content_width;
 
-			r = {xx + sa->scroll_x, yy + sa->base.h - sa->scrollbar_thickness+1, sa->thumb_size_h, sa->scrollbar_thickness-4};
+			r = (SDL_FRect) {xx + sa->scroll_x, yy + sa->base.h - sa->scrollbar_thickness+1, sa->thumb_size_h, sa->scrollbar_thickness-4};
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 		}
 
@@ -387,7 +387,7 @@ void SDLUI_Render_ScrollArea(SDLUI_Control_ScrollArea *sa)
 	
 		// Container rect
 		SDLUI_SetColor(SDLUI_Core.theme.col_grey);
-		r = {xx, yy, sa->base.w, sa->base.h};
+		r = (SDL_FRect) {xx, yy, sa->base.w, sa->base.h};
 		SDL_RenderRect(SDLUI_Core.renderer, &r);
 	}
 }
@@ -400,7 +400,7 @@ void SDLUI_Render_TextBox(SDLUI_Control_TextBox *tbx)
 		i32 yy = tbx->base.y - tbx->base.parent->y;
 
 		SDLUI_SetColor(SDLUI_Core.theme.col_textbox_bg);
-		SDL_FRect r = {xx, yy, tbx->base.w, tbx->base.h};
+		SDL_FRect r = (SDL_FRect) {xx, yy, tbx->base.w, tbx->base.h};
 		SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 		SDLUI_SetColor(SDLUI_Core.theme.col_grey);
@@ -417,13 +417,13 @@ void SDLUI_Render_TextBox(SDLUI_Control_TextBox *tbx)
 
 		if(tbx->focused && tbx->base.parent == CTRL(SDLUI_Core.active_window) && SDLUI_Core.active_window != NULL)
 		{
-			r = {xx + SDLUI_MARGIN + ((tbx->cursor_pos - tbx->scroll) * SDLUI_Font.width), yy + 6, 2, tbx->base.h - 12};
+			r = (SDL_FRect) {xx + SDLUI_MARGIN + ((tbx->cursor_pos - tbx->scroll) * SDLUI_Font.width), yy + 6, 2, tbx->base.h - 12};
 			SDLUI_SetColor(SDLUI_Core.theme.col_white);
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 		}
 
 		SDL_SetRenderTarget(SDLUI_Core.renderer, tbx->tex_text);
-		r = {0, 0, tbx->base.w, tbx->base.h};
+		r = (SDL_FRect) {0, 0, tbx->base.w, tbx->base.h};
 		SDLUI_SetColor(SDLUI_Core.theme.col_textbox_bg);
 		SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
@@ -535,17 +535,17 @@ void SDLUI_Render_Window(SDLUI_Control_Window *wnd)
 		{
 			SDL_SetRenderTarget(SDLUI_Core.renderer, wnd->tex_rect);
 			SDLUI_SetColor(SDLUI_Core.theme.col_active_window_bar);
-			SDL_FRect r = {0, 0, wnd->base.w, 30};
+			SDL_FRect r = (SDL_FRect) {0, 0, wnd->base.w, 30};
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_white);
 			float tex_w, tex_h;
 			SDL_GetTextureSize(wnd->tex_title,  &tex_w, &tex_h);
-			r = {SDLUI_MARGIN, SDLUI_MARGIN, tex_w, tex_h};
+			r = (SDL_FRect) {SDLUI_MARGIN, SDLUI_MARGIN, tex_w, tex_h};
 			SDL_RenderTexture(SDLUI_Core.renderer, wnd->tex_title, NULL, &r);
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_window_bg);
-			r = {0, 0 + 30, wnd->base.w, wnd->base.h - 30};
+			r = (SDL_FRect) {0, 0 + 30, wnd->base.w, wnd->base.h - 30};
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 			float mx, my;
@@ -555,22 +555,22 @@ void SDLUI_Render_Window(SDLUI_Control_Window *wnd)
             my=my*SDLUI_Core.texture_window_hdpi_ratio_y;
             #endif
             
-			r = {wnd->base.x + wnd->base.w - 30, wnd->base.y, 30, 30};
+			r = (SDL_FRect) {wnd->base.x + wnd->base.w - 30, wnd->base.y, 30, 30};
 
 			if(wnd->has_close_button)
 			{
 				if(SDLUI_PointInRect(r, mx, my) && !wnd->is_resized)
 				{
 					SDLUI_SetColor(SDLUI_Core.theme.col_red);
-					r = {wnd->base.w - 29, 1, 28, 28};
+					r = (SDL_FRect) {wnd->base.w - 29, 1, 28, 28};
 				}
 				else
 				{
 					SDLUI_SetColor(SDLUI_Core.theme.col_active_window_bar);
-					r = {wnd->base.w - 29, 1, 28, 28};
+					r = (SDL_FRect) {wnd->base.w - 29, 1, 28, 28};
 				}
 
-				r = {0 + wnd->base.w - 30, 0, 30, 30};
+				r = (SDL_FRect) {0 + wnd->base.w - 30, 0, 30, 30};
         			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 				SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_close, NULL, &r);
 			}
@@ -597,36 +597,36 @@ void SDLUI_Render_Window(SDLUI_Control_Window *wnd)
 			}
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_grey);
-			r = {0, 0, wnd->base.w, wnd->base.h};
+			r = (SDL_FRect) {0, 0, wnd->base.w, wnd->base.h};
 			SDL_RenderRect(SDLUI_Core.renderer, &r);
-			r = {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
+			r = (SDL_FRect) {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
 			SDL_SetRenderTarget(SDLUI_Core.renderer, NULL);
 			SDL_RenderTexture(SDLUI_Core.renderer, wnd->tex_rect, NULL, &r);
 		}
 		else
 		{
 			SDL_SetRenderTarget(SDLUI_Core.renderer, wnd->tex_rect);
-			SDL_FRect r = {0, 0, wnd->base.w, 30};
+			SDL_FRect r = (SDL_FRect) {0, 0, wnd->base.w, 30};
 			SDLUI_SetColor(SDLUI_Core.theme.col_inactive_window_bar);
 			SDL_RenderFillRect(SDLUI_Core.renderer, &r);
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_white);
 			float tex_w, tex_h;
 			SDL_GetTextureSize(wnd->tex_title,  &tex_w, &tex_h);
-			r = {SDLUI_MARGIN, SDLUI_MARGIN, tex_w, tex_h};
+			r = (SDL_FRect) {SDLUI_MARGIN, SDLUI_MARGIN, tex_w, tex_h};
 			SDL_RenderTexture(SDLUI_Core.renderer, wnd->tex_title, NULL, &r);
 
 			if(wnd->has_close_button)
 			{
-				r = {0 + wnd->base.w - 30, 0, 30, 30};
+				r = (SDL_FRect) {0 + wnd->base.w - 30, 0, 30, 30};
 				SDL_RenderTexture(SDLUI_Core.renderer, SDLUI_Core.tex_close, NULL, &r);
 			}
 
 			SDLUI_SetColor(SDLUI_Core.theme.col_grey);
-			r = {0, 0, wnd->base.w, wnd->base.h};
+			r = (SDL_FRect) {0, 0, wnd->base.w, wnd->base.h};
 			SDL_RenderRect(SDLUI_Core.renderer, &r);
 
-			r = {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
+			r = (SDL_FRect) {wnd->base.x, wnd->base.y, wnd->base.w, wnd->base.h};
 			SDL_SetRenderTarget(SDLUI_Core.renderer, NULL);
 			SDL_RenderTexture(SDLUI_Core.renderer, wnd->tex_rect, NULL, &r);
 		}

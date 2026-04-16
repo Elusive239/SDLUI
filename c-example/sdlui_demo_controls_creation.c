@@ -7,7 +7,7 @@ SDLUI_Control_Window *wnd4 = SDLUI_CreateWindow(120, 620, 820, 170, "Colors");
 // Add some common controls. Simple controls such as these do not need much explaining.
 SDLUI_Control_Button *btn1 = SDLUI_CreateButton(wnd1, 10, 40, "PushButton");
 SDLUI_Control_TextBox *tbx1 = SDLUI_CreateTextBox(wnd1, 160, 40, 150);
-SDLUI_Control_SliderInt *si1 = SDLUI_CreateSliderInt(wnd1, 10, 90, 0, 100, 20);
+SDLUI_Control_SliderInt *si1 = SDLUI_CreateSliderInt(wnd1, 10, 90, 0, 100, 20, SDLUI_ORIENTATION_HORIZONTAL);
 SDLUI_Control_SliderInt *si2 = SDLUI_CreateSliderInt(wnd1, 140, 90, 0, 100, 60, SDLUI_ORIENTATION_VERTICAL);
 SDLUI_Control_CheckBox *chk1 = SDLUI_CreateCheckBox(wnd1, 10, 130, "Checkbox", false);
 
@@ -21,18 +21,18 @@ SDLUI_Control_ScrollArea *sa1 = SDLUI_CreateScrollArea(wnd1, 10, 220, 320, 160, 
 // A list needs an array of strings. It doesn't matter what kind of container it is (std::vector, C array of strings, etc),
 // as long as it can feed the list with a char* representing the caption for each element. This will make more sense
 // when we'll later call the control's usage function inside the application loop.
-std::vector<std::string> list_items;
-for (int i = 0; i < 100; ++i)
-{
-	std::string cur_item = "List Item: ";
-	cur_item += std::to_string(i);
-	list_items.push_back(cur_item);
-}
+// std::vector<std::string> list_items;
+// for (int i = 0; i < 100; ++i)
+// {
+// 	std::string cur_item = "List Item: ";
+// 	cur_item += std::to_string(i);
+// 	list_items.push_back(cur_item);
+// }
 
 // We can now create a list and bind it to the ScrollArea above.
 // If the size of the data container isn't known at compile time we can simply pass zero to the last function parameter.
 // In this case we pass the size of the list_items vector.
-SDLUI_Control_List *lst1 = SDLUI_CreateList(wnd1, sa1, list_items.size());
+// SDLUI_Control_List *lst1 = SDLUI_CreateList(wnd1, sa1, list_items.size());
 
 // Some more controls...
 SDLUI_Control_Button *btn2 = SDLUI_CreateButton(wnd2, 10, 40, "ClickMe");
@@ -52,13 +52,13 @@ SDLUI_ArrayOfControls rb_group1 = SDLUI_CreateRadioButtonGroup();
 SDLUI_ArrayOfControls rb_group2 = SDLUI_CreateRadioButtonGroup();
 
 // Create a bunch of RadioButtons, assigning them to their respective group.
-SDLUI_Control_RadioButton *rb1 = SDLUI_CreateRadioButton(wnd3, rb_group1, 30, 80, "RadioButton1", true);
-SDLUI_Control_RadioButton *rb2 = SDLUI_CreateRadioButton(wnd3, rb_group1, 30, 110, "RadioButton2", false);
-SDLUI_Control_RadioButton *rb3 = SDLUI_CreateRadioButton(wnd3, rb_group1, 30, 140, "RadioButton3", false);
+SDLUI_Control_RadioButton *rb1 = SDLUI_CreateRadioButton(wnd3, &rb_group1, 30, 80, "RadioButton1", true);
+SDLUI_Control_RadioButton *rb2 = SDLUI_CreateRadioButton(wnd3, &rb_group1, 30, 110, "RadioButton2", false);
+SDLUI_Control_RadioButton *rb3 = SDLUI_CreateRadioButton(wnd3, &rb_group1, 30, 140, "RadioButton3", false);
 
-SDLUI_Control_RadioButton *rb4 = SDLUI_CreateRadioButton(wnd3, rb_group2, 220, 80, "RadioButton4", false);
-SDLUI_Control_RadioButton *rb5 = SDLUI_CreateRadioButton(wnd3, rb_group2, 220, 110, "RadioButton5", true);
-SDLUI_Control_RadioButton *rb6 = SDLUI_CreateRadioButton(wnd3, rb_group2, 220, 140, "RadioButton6", false);
+SDLUI_Control_RadioButton *rb4 = SDLUI_CreateRadioButton(wnd3, &rb_group2, 220, 80, "RadioButton4", false);
+SDLUI_Control_RadioButton *rb5 = SDLUI_CreateRadioButton(wnd3, &rb_group2, 220, 110, "RadioButton5", true);
+SDLUI_Control_RadioButton *rb6 = SDLUI_CreateRadioButton(wnd3, &rb_group2, 220, 140, "RadioButton6", false);
 
 // More controls...
 SDLUI_Control_ToggleButton *tb1 = SDLUI_CreateToggleButton(wnd3, 30, 80, "Toggle Button", true);
@@ -70,21 +70,20 @@ SDLUI_Control_Button *btn3 = SDLUI_CreateButton(wnd3, 30, 110, "Test");
 // Note that positioning of controls is relative to the window and not to the position of the TabContainer inside the window.
 SDLUI_Control_TabContainer *tbc1 = SDLUI_CreateTabContainer(wnd3, 10, 40, 350, 140);
 
-tbc1->add_tab("First");
-tbc1->add_tab("Second");
-tbc1->add_tab("Third");
+SDLUI_TabContainer_add_tab(tbc1, "First");
+SDLUI_TabContainer_add_tab(tbc1, "Second");
+SDLUI_TabContainer_add_tab(tbc1, "Third");
 
-tbc1->set_active_tab(0);
+SDLUI_TabContainer_set_active_tab(tbc1, 0);
 
-tbc1->add_child(0, CTRL(rb1));
-tbc1->add_child(0, CTRL(rb2));
-tbc1->add_child(0, CTRL(rb3));
-tbc1->add_child(0, CTRL(rb4));
-tbc1->add_child(0, CTRL(rb5));
-tbc1->add_child(0, CTRL(rb6));
-
-tbc1->add_child(1, CTRL(tb1));
-tbc1->add_child(1, CTRL(btn3));
+SDLUI_TabContainer_add_child(tbc1, 0, rb1);
+SDLUI_TabContainer_add_child(tbc1, 0, rb2);
+SDLUI_TabContainer_add_child(tbc1, 0, rb3);
+SDLUI_TabContainer_add_child(tbc1, 0, rb4);
+SDLUI_TabContainer_add_child(tbc1, 0, rb5);
+SDLUI_TabContainer_add_child(tbc1, 0, rb6);
+SDLUI_TabContainer_add_child(tbc1, 1, tb1);
+SDLUI_TabContainer_add_child(tbc1, 1, btn3);
 
 // Yet more controls...
 SDLUI_Control_Button *btn_copy = SDLUI_CreateButton(wnd4, 680, 40, "Copy");
@@ -95,16 +94,18 @@ SDLUI_Control_Text *txt04 = SDLUI_CreateText(wnd4, 10, 130, "Highlight");
 
 // Here's an example creating controls in batch and storing their pointers in an SDLUI_ArrayOfControls.
 SDLUI_ArrayOfControls color_sliders;
-color_sliders.create();
+SDLUI_ArrayOfControls_create(&color_sliders);
 
 i32 x = 200, y = 40;
 const int num_sliders = 12;
 
 for (int i = 0; i < num_sliders; ++i)
 {
-	SDLUI_Control_SliderInt *si = SDLUI_CreateSliderInt(wnd4, x, y, 0, 255, 0);
+	SDLUI_Control_SliderInt *si = SDLUI_CreateSliderInt(wnd4, x, y, 0, 255, 0, SDLUI_ORIENTATION_HORIZONTAL);
 	si->base.w = 128;
-	color_sliders.push(CTRL(si));
+	SDLUI_ArrayOfControls_push(
+		&color_sliders, CTRL(si)
+	);
 	x += 150;
 
 	if((i + 1) % 3 == 0 && i > 0)

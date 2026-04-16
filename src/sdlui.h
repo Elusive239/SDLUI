@@ -1,6 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
 #include <iostream>
+#endif
+
 #include <stdlib.h>
 
 #ifdef _WIN32
@@ -39,10 +42,11 @@ typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
 
+struct __SDLUI_Core;
+struct __SDLUI_Font;
 struct SDLUI_String;
 struct SDLUI_Theme;
 struct SDLUI_Control;
-struct SDLUI_Font;
 struct SDLUI_ArrayOfControls;
 struct SDLUI_Control_Window;
 struct SDLUI_Control_Button;
@@ -51,7 +55,6 @@ struct SDLUI_Control_CheckBox;
 struct SDLUI_Control_ToggleButton;
 struct SDLUI_Control_RadioButton;
 struct SDLUI_Control_TextBox;
-struct SDLUI_Core;
 struct SDLUI_Control_Tab;
 struct SDLUI_Control_TabContainer;
 struct SDLUI_Control_Label;
@@ -63,6 +66,7 @@ struct SDLUI_Control_List;
 
 // Function Declarations
 
+#ifdef __cplusplus
 extern "C" {
     // sdlui_create
 	SDLUI_Control_Window *SDLUI_CreateWindow(i32 x, i32 y, i32 w, i32 h, char const *title);
@@ -72,14 +76,14 @@ extern "C" {
 	SDLUI_Control_Text *SDLUI_CreateText(SDLUI_Control_Window *wnd, i32 x, i32 y, char const *text);
 	SDLUI_Control_ToggleButton *SDLUI_CreateToggleButton(SDLUI_Control_Window *wnd, i32 x, i32 y, char const *text, bool checked);
 	SDLUI_ArrayOfControls SDLUI_CreateRadioButtonGroup();
-	SDLUI_Control_RadioButton *SDLUI_CreateRadioButton(SDLUI_Control_Window *wnd, SDLUI_ArrayOfControls &group, i32 x, i32 y, char const *text, bool checked);
+	SDLUI_Control_RadioButton *SDLUI_CreateRadioButton(SDLUI_Control_Window *wnd, SDLUI_ArrayOfControls* group, i32 x, i32 y, char const *text, bool checked);
 	SDLUI_Control_TabContainer *SDLUI_CreateTabContainer(SDLUI_Control_Window *wnd, i32 x, i32 y, i32 w, i32 h);
 	SDLUI_Control_ScrollArea *SDLUI_CreateScrollArea(SDLUI_Control_Window *wnd, i32 x, i32 y, i32 w, i32 h, SDL_Texture *tex);
 	SDLUI_Control_List *SDLUI_CreateList(SDLUI_Control_Window *wnd, SDLUI_Control_ScrollArea *sa, i32 num_items);
 	SDLUI_Control_TextBox *SDLUI_CreateTextBox(SDLUI_Control_Window *wnd, i32 x, i32 y, i32 w);
 
     // sdlui_event
-    void SDLUI_EventHandler(SDL_Event const &ev);
+    void SDLUI_EventHandler(SDL_Event* ev);
 
     // sdlui_helpers
 	float SDLUI_Map(float in_min, float in_max, float out_min, float out_max, float value);
@@ -148,8 +152,9 @@ extern "C" {
 	bool SDLUI_String_delete_char(SDLUI_String* self, i32 pos);
 }
 
-#ifdef __cplusplus
-#define CPP
+	#define SDLUI_DEFAULT_PARAM(value) = value
+#else
+	#define SDLUI_DEFAULT_PARAM(value)
 #endif
 
 #define CTRL(value) ((SDLUI_Control*)(void*)(value))
