@@ -42,35 +42,41 @@ SDLUI_TabContainer(tbc1);
 
 // Copy the current theme in clipboard. This can be used to create an instance of an SDLUI_Theme 
 // for a custom color theme definition.
+
+// Warning: *Potentially* dangerous implementation, be warned!
 if(SDLUI_Button(btn_copy))
 {
-	 SDLUI_Control_SliderInt *cur;
-	char *cb = "SDLUI_Theme my_theme = {\n\t{";
+	SDLUI_Control_SliderInt *cur;
+	#define BUFFER_LEN 1024*1024
+	char buffer[BUFFER_LEN] = {0};
+	memset(buffer, 0, BUFFER_LEN);
+
+	int wrote = sprintf(buffer, "SDLUI_Theme my_theme = {\n\t{"); 
 
 	for (int i = 0; i < num_sliders; ++i)
 	{
 		cur = ( SDLUI_Control_SliderInt*)color_sliders.data[i];
-
-		// cb += std::to_string(cur->value);
+		
+		wrote += sprintf(buffer + wrote, "%d", cur->value ); 
 
 		if((i + 1) % 3 == 0)
 		{
 			if(i < num_sliders - 1)
 			{
-				// cb += ", 255},\n\t{";
+				wrote += sprintf(buffer + wrote,", 255},\n\t{");
 			}
 			else
 			{
-				// cb += ", 255}\n};";
+				wrote += sprintf(buffer + wrote,", 255}\n};");
 			}
 		}
 		else
 		{
-			// cb += ", ";
+			wrote += sprintf(buffer + wrote,", ");
 		}
 	}
 
-	// SDL_SetClipboardText(cb.c_str());
+	SDL_SetClipboardText(buffer);
 }
 
  SDLUI_Control_SliderInt *col_slider;

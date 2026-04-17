@@ -14,7 +14,6 @@ void StringList_init(StringList* list, size_t inital_capacity) {
 
 void StringList_append(StringList* list, char* value) {
     StringList_reserve(list);
-    printf("Hi! We got this: %s\n", value);
     list->data[list->len++] = value;
 }
 

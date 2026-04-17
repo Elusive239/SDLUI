@@ -7,7 +7,8 @@ Its purpose is to have a convenient way to build small apps, utilities and tools
 This fork has a couple of goals.
 
 - [x] Port the project to SDL3.
-- [ ] Convert the C++ code into C code ([Like this fork wanted to](https://github.com/leechristina/SDLUI)).
+- [x] Convert the C++ code into C code ([Like this fork wanted to](https://github.com/leechristina/SDLUI)).
+- [ ] Reimplement font loading from SDL streams
 - [ ] Implement some kind of layout management, ala CLAY.
 - [ ] Add stable bindings for C3.
 
