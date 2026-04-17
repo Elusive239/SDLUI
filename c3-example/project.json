@@ -1,0 +1,19 @@
+{
+  "langrev": "1",
+  "warnings":  [ "no-unused" ],
+  "dependency-search-paths":  [ "lib", "../" ],
+  "dependencies":  [ "sdl3", "sdl3_ttf", "sdl3_image", "sdlui" ],
+  "authors":  [ "Elusive239 <@elusive-noir.bsky.social>" ],
+  "version": "0.1.0",
+  "sources":  [ "**" ],
+//   "test-sources":  [ "tests/**" ],
+  "build-dir": "build",
+  "output": "build",
+  "targets": {
+    "main": {
+      "type": "executable",
+    },
+  },
+  "cpu": "generic",
+  "opt": "O0"
+}
